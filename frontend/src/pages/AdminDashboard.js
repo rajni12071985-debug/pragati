@@ -40,12 +40,13 @@ const AdminDashboard = ({ onLogout }) => {
 
   const fetchAllData = async () => {
     try {
-      const [studentsRes, teamsRes, interestsRes, requestsRes, statsRes] = await Promise.all([
+      const [studentsRes, teamsRes, interestsRes, requestsRes, statsRes, eventsRes] = await Promise.all([
         axios.get(`${API}/admin/students`),
         axios.get(`${API}/admin/teams`),
         axios.get(`${API}/interests`),
         axios.get(`${API}/admin/requests`),
-        axios.get(`${API}/admin/stats`)
+        axios.get(`${API}/admin/stats`),
+        axios.get(`${API}/events`)
       ]);
 
       setStudents(studentsRes.data);
@@ -53,6 +54,7 @@ const AdminDashboard = ({ onLogout }) => {
       setInterests(interestsRes.data);
       setRequests(requestsRes.data);
       setStats(statsRes.data);
+      setEvents(eventsRes.data);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast.error('Failed to load admin data');
