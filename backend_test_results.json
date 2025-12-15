@@ -1,0 +1,107 @@
+{
+  "total_tests": 20,
+  "passed_tests": 20,
+  "success_rate": 100.0,
+  "results": [
+    {
+      "test": "Student Login/Registration",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get Interests",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Create Interest",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Update Student Interests",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Delete Interest",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get Student by ID",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get All Students",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get Students with Interest Filter",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Create Team",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get All Teams",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Search Teams",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get Student Teams",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Create Second Student",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Create Join Request",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Get Team Requests",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Approve Join Request",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Login (Correct Password)",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Login (Wrong Password)",
+      "status": "PASSED",
+      "details": "Status: 401, Expected: 401"
+    },
+    {
+      "test": "Admin Get Students",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Get Teams",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    }
+  ]
+}
