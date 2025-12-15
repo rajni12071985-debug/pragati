@@ -13,10 +13,18 @@ const Dashboard = ({ student, onLogout }) => {
   const [teams, setTeams] = useState([]);
   const [currentStudent, setCurrentStudent] = useState(student);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     fetchStudentData();
     fetchStudentTeams();
+    fetchUnreadCount();
+    
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStudentData = async () => {
