@@ -128,6 +128,16 @@ function App() {
             }
           />
           <Route
+            path="/team/:teamId/chat"
+            element={
+              currentStudent ? (
+                <TeamChat student={currentStudent} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
             path="/events"
             element={
               currentStudent ? (
