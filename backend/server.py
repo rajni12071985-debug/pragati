@@ -24,6 +24,7 @@ class StudentCreate(BaseModel):
     name: str
     branch: str
     year: str
+    rollNumber: str
 
 class Student(BaseModel):
     model_config = ConfigDict(extra="ignore")
