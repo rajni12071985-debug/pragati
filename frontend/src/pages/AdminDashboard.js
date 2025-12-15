@@ -26,12 +26,21 @@ const AdminDashboard = ({ onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [teamSearchTerm, setTeamSearchTerm] = useState('');
+  const [competitions, setCompetitions] = useState([]);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [showCreateCompetition, setShowCreateCompetition] = useState(false);
+  const [selectedInterests, setSelectedInterests] = useState([]);
+  const [interestCounts, setInterestCounts] = useState({});
   const [newEvent, setNewEvent] = useState({
     name: '',
+    description: ''
+  });
+  const [newCompetition, setNewCompetition] = useState({
+    name: '',
     description: '',
-    requiredStudents: '',
-    category: ''
+    skillsRequired: '',
+    rules: '',
+    eventDate: ''
   });
 
   useEffect(() => {
