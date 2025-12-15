@@ -1162,6 +1162,131 @@ const AdminDashboard = ({ onLogout }) => {
                   </div>
                 </div>
               </TabsContent>
+
+              <TabsContent value="svietbook" data-testid="svietbook-content">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold font-outfit text-slate-200">SVIETBOOK - Event Gallery</h2>
+                    <Button
+                      data-testid="upload-photo-button"
+                      onClick={() => setShowUploadPhoto(!showUploadPhoto)}
+                      className="bg-cyan-500 text-black hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 font-bold"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Upload Photo
+                    </Button>
+                  </div>
+
+                  {showUploadPhoto && (
+                    <form onSubmit={handleUploadPhoto} className="glass-card rounded-xl p-6 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-slate-300 text-sm mb-2 block">Event Name*</label>
+                          <Input
+                            data-testid="photo-event-name-input"
+                            placeholder="e.g., Annual Fest 2025"
+                            value={newPhoto.eventName}
+                            onChange={(e) => setNewPhoto({...newPhoto, eventName: e.target.value})}
+                            className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-slate-300 text-sm mb-2 block">Photo URL*</label>
+                          <Input
+                            data-testid="photo-url-input"
+                            placeholder="https://example.com/photo.jpg"
+                            value={newPhoto.photoUrl}
+                            onChange={(e) => setNewPhoto({...newPhoto, photoUrl: e.target.value})}
+                            className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-slate-300 text-sm mb-2 block">Description*</label>
+                        <textarea
+                          data-testid="photo-description-input"
+                          placeholder="Describe this moment..."
+                          value={newPhoto.description}
+                          onChange={(e) => setNewPhoto({...newPhoto, description: e.target.value})}
+                          className="w-full bg-slate-950/50 border border-white/10 rounded-md px-3 py-2 text-slate-200 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 min-h-[80px]"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          data-testid="submit-photo-button"
+                          type="submit"
+                          className="bg-cyan-500 text-black hover:bg-cyan-400 font-bold"
+                        >
+                          Upload Photo
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => setShowUploadPhoto(false)}
+                          variant="ghost"
+                          className="text-slate-400 hover:text-slate-300"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {photos.length === 0 ? (
+                      <div className="col-span-full glass-card rounded-xl p-12 text-center">
+                        <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-400">No photos uploaded yet</p>
+                      </div>
+                    ) : (
+                      photos.map((photo) => (
+                        <div
+                          key={photo.id}
+                          data-testid={`photo-${photo.id}`}
+                          className="glass-card rounded-xl overflow-hidden hover:-translate-y-1 transition-all duration-300 group"
+                        >
+                          <div className="relative">
+                            <img
+                              src={photo.photoUrl}
+                              alt={photo.eventName}
+                              className="w-full h-64 object-cover"
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
+                              }}
+                            />
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                data-testid={`delete-photo-${photo.id}`}
+                                onClick={() => handleDeletePhoto(photo.id)}
+                                size="sm"
+                                className="bg-red-500/80 text-white hover:bg-red-600"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="text-lg font-bold text-cyan-400 mb-2">{photo.eventName}</h3>
+                            <p className="text-slate-300 text-sm mb-3">{photo.description}</p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 text-pink-400">
+                                <span className="text-xl">❤️</span>
+                                <span className="font-bold">{photo.likes?.length || 0}</span>
+                                <span className="text-sm text-slate-500">likes</span>
+                              </div>
+                              <span className="text-xs text-slate-500">
+                                {new Date(photo.createdAt).toLocaleDateString('en-IN', {
+                                  day: '2-digit',
+                                  month: 'short'
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
             </Tabs>
           )}
         </div>
