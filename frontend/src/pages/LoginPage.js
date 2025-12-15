@@ -15,13 +15,20 @@ const LoginPage = ({ onLogin }) => {
   const [name, setName] = useState('');
   const [branch, setBranch] = useState('');
   const [year, setYear] = useState('');
+  const [rollNumber, setRollNumber] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     
-    if (!name || !branch || !year) {
+    if (!name || !branch || !year || !rollNumber) {
       toast.error('Please fill all fields');
+      return;
+    }
+
+    const rollPattern = /^\d{4}BT(CS|AI)\d{3}$/;
+    if (!rollPattern.test(rollNumber)) {
+      toast.error('Invalid roll number format. Use: YYYYBTCS/AI### (e.g., 2025BTCS282)');
       return;
     }
 
@@ -30,7 +37,8 @@ const LoginPage = ({ onLogin }) => {
       const response = await axios.post(`${API}/auth/student`, {
         name,
         branch,
-        year
+        year,
+        rollNumber
       });
       
       onLogin(response.data);
@@ -38,7 +46,8 @@ const LoginPage = ({ onLogin }) => {
       navigate('/interests');
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
+      const errorMsg = error.response?.data?.detail || 'Login failed. Please try again.';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
