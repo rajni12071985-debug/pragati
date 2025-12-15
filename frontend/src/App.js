@@ -127,6 +127,16 @@ function App() {
             }
           />
           <Route
+            path="/events"
+            element={
+              currentStudent ? (
+                <Events student={currentStudent} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
             path="/admin"
             element={
               isAdmin ? (
