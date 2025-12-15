@@ -11,11 +11,23 @@ const API = `${BACKEND_URL}/api`;
 const Dashboard = ({ student, onLogout }) => {
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
+  const [currentStudent, setCurrentStudent] = useState(student);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchStudentData();
     fetchStudentTeams();
   }, []);
+
+  const fetchStudentData = async () => {
+    try {
+      const response = await axios.get(`${API}/students/${student.id}`);
+      setCurrentStudent(response.data);
+      localStorage.setItem('camplink_student', JSON.stringify(response.data));
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    }
+  };
 
   const fetchStudentTeams = async () => {
     try {
