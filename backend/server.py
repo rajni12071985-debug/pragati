@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, status
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,67 +6,325 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
-
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+class StudentCreate(BaseModel):
+    name: str
+    branch: str
+    year: str
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+class Student(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    branch: str
+    year: str
+    interests: List[str] = Field(default_factory=list)
+    teams: List[str] = Field(default_factory=list)
+    isLeader: bool = False
+    createdAt: str
+
+class InterestUpdate(BaseModel):
+    studentId: str
+    interests: List[str]
+
+class Interest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    createdAt: str
+
+class InterestCreate(BaseModel):
+    name: str
+
+class TeamCreate(BaseModel):
+    name: str
+    leaderId: str
+    memberIds: List[str]
+    interests: List[str]
+
+class Team(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    leaderId: str
+    leaderName: str
+    memberIds: List[str]
+    members: List[dict] = Field(default_factory=list)
+    interests: List[str]
+    createdAt: str
+
+class JoinRequestCreate(BaseModel):
+    teamId: str
+    studentId: str
+
+class JoinRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    teamId: str
+    teamName: str
+    studentId: str
+    studentName: str
+    status: str
+    createdAt: str
+
+class RequestAction(BaseModel):
+    requestId: str
+    action: str
+
+class AdminLogin(BaseModel):
+    password: str
+
+@api_router.post("/auth/student", response_model=Student)
+async def student_login(input: StudentCreate):
+    existing = await db.students.find_one({"name": input.name, "branch": input.branch, "year": input.year}, {"_id": 0})
     
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+    if existing:
+        if isinstance(existing.get('createdAt'), str):
+            pass
+        return Student(**existing)
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
+    student = Student(
+        id=str(uuid.uuid4()),
+        name=input.name,
+        branch=input.branch,
+        year=input.year,
+        interests=[],
+        teams=[],
+        isLeader=False,
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
     
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+    doc = student.model_dump()
+    await db.students.insert_one(doc)
+    return student
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.get("/students/{student_id}", response_model=Student)
+async def get_student(student_id: str):
+    student = await db.students.find_one({"id": student_id}, {"_id": 0})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return Student(**student)
 
-# Include the router in the main app
+@api_router.put("/students/{student_id}/interests")
+async def update_interests(student_id: str, input: InterestUpdate):
+    result = await db.students.update_one(
+        {"id": student_id},
+        {"$set": {"interests": input.interests}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return {"message": "Interests updated successfully"}
+
+@api_router.get("/interests", response_model=List[Interest])
+async def get_interests():
+    interests = await db.interests.find({}, {"_id": 0}).to_list(1000)
+    return [Interest(**i) for i in interests]
+
+@api_router.post("/interests", response_model=Interest)
+async def create_interest(input: InterestCreate):
+    existing = await db.interests.find_one({"name": input.name}, {"_id": 0})
+    if existing:
+        return Interest(**existing)
+    
+    interest = Interest(
+        id=str(uuid.uuid4()),
+        name=input.name,
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    await db.interests.insert_one(interest.model_dump())
+    return interest
+
+@api_router.delete("/interests/{interest_id}")
+async def delete_interest(interest_id: str):
+    result = await db.interests.delete_one({"id": interest_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Interest not found")
+    return {"message": "Interest deleted successfully"}
+
+@api_router.get("/students", response_model=List[Student])
+async def get_students(interests: Optional[str] = None):
+    query = {}
+    if interests:
+        interest_list = interests.split(",")
+        query["interests"] = {"$in": interest_list}
+    
+    students = await db.students.find(query, {"_id": 0}).to_list(1000)
+    return [Student(**s) for s in students]
+
+@api_router.post("/teams", response_model=Team)
+async def create_team(input: TeamCreate):
+    leader = await db.students.find_one({"id": input.leaderId}, {"_id": 0})
+    if not leader:
+        raise HTTPException(status_code=404, detail="Leader not found")
+    
+    team = Team(
+        id=str(uuid.uuid4()),
+        name=input.name,
+        leaderId=input.leaderId,
+        leaderName=leader["name"],
+        memberIds=input.memberIds,
+        members=[],
+        interests=input.interests,
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    
+    await db.teams.insert_one(team.model_dump())
+    
+    await db.students.update_one(
+        {"id": input.leaderId},
+        {"$set": {"isLeader": True}, "$addToSet": {"teams": team.id}}
+    )
+    
+    for member_id in input.memberIds:
+        await db.students.update_one(
+            {"id": member_id},
+            {"$addToSet": {"teams": team.id}}
+        )
+    
+    return team
+
+@api_router.get("/teams", response_model=List[Team])
+async def get_teams(search: Optional[str] = None):
+    query = {}
+    if search:
+        query["name"] = {"$regex": search, "$options": "i"}
+    
+    teams = await db.teams.find(query, {"_id": 0}).to_list(1000)
+    result = []
+    
+    for team in teams:
+        member_details = []
+        for member_id in team.get("memberIds", []):
+            member = await db.students.find_one({"id": member_id}, {"_id": 0, "name": 1, "id": 1})
+            if member:
+                member_details.append({"id": member["id"], "name": member["name"]})
+        
+        team["members"] = member_details
+        result.append(Team(**team))
+    
+    return result
+
+@api_router.get("/teams/student/{student_id}", response_model=List[Team])
+async def get_student_teams(student_id: str):
+    student = await db.students.find_one({"id": student_id}, {"_id": 0})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    team_ids = student.get("teams", [])
+    if not team_ids:
+        return []
+    
+    teams = await db.teams.find({"id": {"$in": team_ids}}, {"_id": 0}).to_list(1000)
+    result = []
+    
+    for team in teams:
+        member_details = []
+        for member_id in team.get("memberIds", []):
+            member = await db.students.find_one({"id": member_id}, {"_id": 0, "name": 1, "id": 1})
+            if member:
+                member_details.append({"id": member["id"], "name": member["name"]})
+        
+        team["members"] = member_details
+        result.append(Team(**team))
+    
+    return result
+
+@api_router.post("/team-requests", response_model=JoinRequest)
+async def create_join_request(input: JoinRequestCreate):
+    team = await db.teams.find_one({"id": input.teamId}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    student = await db.students.find_one({"id": input.studentId}, {"_id": 0})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    existing = await db.teamRequests.find_one(
+        {"teamId": input.teamId, "studentId": input.studentId, "status": "pending"},
+        {"_id": 0}
+    )
+    if existing:
+        return JoinRequest(**existing)
+    
+    request = JoinRequest(
+        id=str(uuid.uuid4()),
+        teamId=input.teamId,
+        teamName=team["name"],
+        studentId=input.studentId,
+        studentName=student["name"],
+        status="pending",
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    
+    await db.teamRequests.insert_one(request.model_dump())
+    return request
+
+@api_router.get("/team-requests/team/{team_id}", response_model=List[JoinRequest])
+async def get_team_requests(team_id: str):
+    requests = await db.teamRequests.find(
+        {"teamId": team_id, "status": "pending"},
+        {"_id": 0}
+    ).to_list(1000)
+    return [JoinRequest(**r) for r in requests]
+
+@api_router.post("/team-requests/action")
+async def handle_request_action(input: RequestAction):
+    request = await db.teamRequests.find_one({"id": input.requestId}, {"_id": 0})
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    if input.action == "approve":
+        await db.teams.update_one(
+            {"id": request["teamId"]},
+            {"$addToSet": {"memberIds": request["studentId"]}}
+        )
+        await db.students.update_one(
+            {"id": request["studentId"]},
+            {"$addToSet": {"teams": request["teamId"]}}
+        )
+        await db.teamRequests.update_one(
+            {"id": input.requestId},
+            {"$set": {"status": "approved"}}
+        )
+        return {"message": "Request approved successfully"}
+    elif input.action == "reject":
+        await db.teamRequests.update_one(
+            {"id": input.requestId},
+            {"$set": {"status": "rejected"}}
+        )
+        return {"message": "Request rejected successfully"}
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+@api_router.post("/admin/login")
+async def admin_login(input: AdminLogin):
+    if input.password == "PRAGATI":
+        return {"success": True, "message": "Admin login successful"}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+@api_router.get("/admin/students", response_model=List[Student])
+async def admin_get_students():
+    students = await db.students.find({}, {"_id": 0}).to_list(1000)
+    return [Student(**s) for s in students]
+
+@api_router.get("/admin/teams", response_model=List[Team])
+async def admin_get_teams():
+    return await get_teams()
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,12 +335,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+@app.on_event("startup")
+async def startup_db():
+    default_interests = [
+        "Dance", "Singing", "Painting", "Poster Making",
+        "Web Development", "Backend", "C", "Java"
+    ]
+    for interest_name in default_interests:
+        existing = await db.interests.find_one({"name": interest_name})
+        if not existing:
+            interest = Interest(
+                id=str(uuid.uuid4()),
+                name=interest_name,
+                createdAt=datetime.now(timezone.utc).isoformat()
+            )
+            await db.interests.insert_one(interest.model_dump())
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
