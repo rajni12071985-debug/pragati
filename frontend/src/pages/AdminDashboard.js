@@ -460,64 +460,156 @@ const AdminDashboard = ({ onLogout }) => {
               </TabsContent>
 
               <TabsContent value="teams" data-testid="teams-content">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold font-outfit text-slate-200">All Teams</h2>
-                    <div className="relative w-64">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
-                      <Input
-                        data-testid="team-search"
-                        placeholder="Search teams..."
-                        value={teamSearchTerm}
-                        onChange={(e) => setTeamSearchTerm(e.target.value)}
-                        className="pl-10 bg-slate-950/50 border-white/10 focus:border-cyan-500/50"
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold font-outfit text-slate-200">Team Management</h2>
                   
-                  <div className="space-y-4">
-                    {filteredTeams.map((team) => (
-                      <div key={team.id} data-testid={`admin-team-${team.id}`} className="glass-card rounded-xl p-6 hover:-translate-y-1 transition-all duration-300">
-                        <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xl font-bold text-cyan-400">{team.name}</h3>
-                          <Button
-                            data-testid={`delete-team-${team.id}`}
-                            onClick={() => handleDeleteTeam(team.id)}
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-bold text-yellow-400 mb-3">Pending Approval ({pendingTeams.length})</h3>
+                      {pendingTeams.length === 0 ? (
+                        <div className="glass-card rounded-xl p-8 text-center">
+                          <p className="text-slate-500">No pending teams</p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-slate-500 text-xs mb-1">Team Leader</p>
-                            <p className="text-slate-300 font-medium">{team.leaderName}</p>
-                          </div>
-                          <div>
-                            <p className="text-slate-500 text-xs mb-2">Members ({team.members.length})</p>
-                            <div className="flex flex-wrap gap-2">
-                              {team.members.map((member) => (
-                                <span key={member.id} className="text-xs px-2 py-1 rounded-full bg-slate-800/50 text-slate-400 flex items-center gap-1">
-                                  {member.name}
-                                </span>
-                              ))}
+                      ) : (
+                        <div className="space-y-4">
+                          {pendingTeams.map((team) => (
+                            <div key={team.id} data-testid={`pending-team-${team.id}`} className="glass-card rounded-xl p-6 border-yellow-500/30">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="text-xl font-bold text-cyan-400">{team.name}</h3>
+                                    <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs border border-yellow-500/30">
+                                      Pending
+                                    </span>
+                                  </div>
+                                  <p className="text-slate-400 text-sm mb-3">Leader: {team.leaderName}</p>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-slate-500 text-xs mb-2">Members ({team.members.length})</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {team.members.map((member) => (
+                                          <span key={member.id} className="text-xs px-2 py-1 rounded-full bg-slate-800/50 text-slate-400">
+                                            {member.name}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <p className="text-slate-500 text-xs mb-2">Interests</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {team.interests.map((interest) => (
+                                          <span key={interest} className="text-xs px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                            {interest}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 ml-4">
+                                  <Button
+                                    data-testid={`approve-team-${team.id}`}
+                                    onClick={() => handleApproveTeam(team.id)}
+                                    className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30"
+                                  >
+                                    <Check className="w-4 h-4 mr-2" />
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    data-testid={`reject-team-${team.id}`}
+                                    onClick={() => handleRejectTeam(team.id)}
+                                    variant="ghost"
+                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                  >
+                                    <X className="w-4 h-4 mr-2" />
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className="md:col-span-2">
-                            <p className="text-slate-500 text-xs mb-2">Interests</p>
-                            <div className="flex flex-wrap gap-2">
-                              {team.interests.map((interest) => (
-                                <span key={interest} className="text-xs px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                                  {interest}
-                                </span>
-                              ))}
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-green-400 mb-3">Approved Teams ({approvedTeams.length})</h3>
+                      {approvedTeams.length === 0 ? (
+                        <div className="glass-card rounded-xl p-8 text-center">
+                          <p className="text-slate-500">No approved teams</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {approvedTeams.map((team) => (
+                            <div key={team.id} data-testid={`approved-team-${team.id}`} className="glass-card rounded-xl p-6 border-green-500/20">
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <h3 className="text-xl font-bold text-cyan-400">{team.name}</h3>
+                                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs border border-green-500/30 flex items-center gap-1">
+                                      <Check className="w-3 h-3" /> Approved
+                                    </span>
+                                  </div>
+                                  <p className="text-slate-400 text-sm mb-3">Leader: {team.leaderName}</p>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-slate-500 text-xs mb-2">Members ({team.members.length})</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {team.members.map((member) => (
+                                          <span key={member.id} className="text-xs px-2 py-1 rounded-full bg-slate-800/50 text-slate-400">
+                                            {member.name}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <p className="text-slate-500 text-xs mb-2">Interests</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {team.interests.map((interest) => (
+                                          <span key={interest} className="text-xs px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                            {interest}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button
+                                  data-testid={`delete-team-${team.id}`}
+                                  onClick={() => handleDeleteTeam(team.id)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </div>
-                          </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {rejectedTeams.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-bold text-red-400 mb-3">Rejected Teams ({rejectedTeams.length})</h3>
+                        <div className="space-y-3">
+                          {rejectedTeams.map((team) => (
+                            <div key={team.id} className="glass-card rounded-xl p-4 border-red-500/20">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-slate-200 font-medium">{team.name}</p>
+                                  <p className="text-slate-500 text-sm">Leader: {team.leaderName}</p>
+                                </div>
+                                <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-xs border border-red-500/30 flex items-center gap-1">
+                                  <X className="w-3 h-3" /> Rejected
+                                </span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </TabsContent>
