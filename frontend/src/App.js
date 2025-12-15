@@ -12,6 +12,7 @@ import CreateTeam from './pages/CreateTeam';
 import JoinTeam from './pages/JoinTeam';
 import TeamRequests from './pages/TeamRequests';
 import TeamDetails from './pages/TeamDetails';
+import Events from './pages/Events';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 
