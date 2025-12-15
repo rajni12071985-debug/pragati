@@ -15,6 +15,7 @@ import TeamDetails from './pages/TeamDetails';
 import TeamChat from './pages/TeamChat';
 import Events from './pages/Events';
 import Notifications from './pages/Notifications';
+import Svietbook from './pages/Svietbook';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 
