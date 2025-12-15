@@ -321,10 +321,46 @@ async def handle_request_action(input: RequestAction):
 
 @api_router.post("/admin/login")
 async def admin_login(input: AdminLogin):
-    if input.password == "PRAGATI":
+    if input.password == "AURORA":
         return {"success": True, "message": "Admin login successful"}
     else:
         raise HTTPException(status_code=401, detail="Invalid password")
+
+@api_router.post("/admin/teams/{team_id}/approve")
+async def approve_team(team_id: str):
+    result = await db.teams.update_one(
+        {"id": team_id},
+        {"$set": {"status": "approved"}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return {"message": "Team approved successfully"}
+
+@api_router.post("/admin/teams/{team_id}/reject")
+async def reject_team(team_id: str):
+    team = await db.teams.find_one({"id": team_id}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    await db.teams.update_one(
+        {"id": team_id},
+        {"$set": {"status": "rejected"}}
+    )
+    
+    await db.students.update_many(
+        {"teams": team_id},
+        {"$pull": {"teams": team_id}}
+    )
+    
+    if team.get("leaderId"):
+        leader_teams = await db.teams.find({"leaderId": team["leaderId"], "status": "approved"}).to_list(1000)
+        if len(leader_teams) == 0:
+            await db.students.update_one(
+                {"id": team["leaderId"]},
+                {"$set": {"isLeader": False}}
+            )
+    
+    return {"message": "Team rejected successfully"}
 
 @api_router.get("/admin/students", response_model=List[Student])
 async def admin_get_students():
