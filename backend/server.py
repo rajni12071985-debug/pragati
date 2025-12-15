@@ -32,6 +32,7 @@ class Student(BaseModel):
     name: str
     branch: str
     year: str
+    rollNumber: str
     interests: List[str] = Field(default_factory=list)
     teams: List[str] = Field(default_factory=list)
     isLeader: bool = False
