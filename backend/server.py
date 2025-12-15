@@ -438,21 +438,51 @@ async def admin_get_stats():
         "totalEvents": total_events
     }
 
+class InterestRequirement(BaseModel):
+    interest: str
+    count: int
+
 class EventCreate(BaseModel):
     name: str
     description: str
-    requiredStudents: int
-    category: str
+    interestRequirements: List[InterestRequirement]
 
 class Event(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
     name: str
     description: str
-    requiredStudents: int
-    category: str
+    interestRequirements: List[dict]
     interestedStudents: List[str] = Field(default_factory=list)
     notInterestedStudents: List[str] = Field(default_factory=list)
+    createdAt: str
+
+class CompetitionCreate(BaseModel):
+    name: str
+    description: str
+    skillsRequired: str
+    rules: str
+    eventDate: str
+
+class Competition(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    description: str
+    skillsRequired: str
+    rules: str
+    eventDate: str
+    createdAt: str
+
+class Notification(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    studentId: str
+    title: str
+    message: str
+    type: str
+    relatedId: str
+    isRead: bool
     createdAt: str
 
 class StudentInterest(BaseModel):
