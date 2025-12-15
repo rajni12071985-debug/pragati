@@ -237,7 +237,7 @@ async def get_student_teams(student_id: str):
     if not team_ids:
         return []
     
-    teams = await db.teams.find({"id": {"$in": team_ids}}, {"_id": 0}).to_list(1000)
+    teams = await db.teams.find({"id": {"$in": team_ids}, "status": "approved"}, {"_id": 0}).to_list(1000)
     result = []
     
     for team in teams:
