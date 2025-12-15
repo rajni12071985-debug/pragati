@@ -116,6 +116,16 @@ function App() {
             }
           />
           <Route
+            path="/team/:teamId"
+            element={
+              currentStudent ? (
+                <TeamDetails student={currentStudent} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
             path="/admin"
             element={
               isAdmin ? (
