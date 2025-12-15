@@ -187,6 +187,7 @@ async def create_team(input: TeamCreate):
         memberIds=input.memberIds,
         members=[],
         interests=input.interests,
+        status="pending",
         createdAt=datetime.now(timezone.utc).isoformat()
     )
     
