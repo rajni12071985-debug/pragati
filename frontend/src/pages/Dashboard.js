@@ -49,6 +49,15 @@ const Dashboard = ({ student, onLogout }) => {
     }
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await axios.get(`${API}/notifications/${student.id}/unread-count`);
+      setUnreadCount(response.data.count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 z-0 bg-[#020617]">
