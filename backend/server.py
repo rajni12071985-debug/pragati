@@ -325,6 +325,70 @@ async def admin_get_students():
 async def admin_get_teams():
     return await get_teams()
 
+@api_router.get("/admin/requests", response_model=List[JoinRequest])
+async def admin_get_all_requests():
+    requests = await db.teamRequests.find({}, {"_id": 0}).to_list(1000)
+    return [JoinRequest(**r) for r in requests]
+
+@api_router.delete("/admin/students/{student_id}")
+async def admin_delete_student(student_id: str):
+    await db.students.delete_one({"id": student_id})
+    await db.teams.update_many(
+        {"memberIds": student_id},
+        {"$pull": {"memberIds": student_id}}
+    )
+    await db.teams.update_many(
+        {"leaderId": student_id},
+        {"$set": {"leaderId": ""}}
+    )
+    await db.teamRequests.delete_many({"studentId": student_id})
+    return {"message": "Student deleted successfully"}
+
+@api_router.delete("/admin/teams/{team_id}")
+async def admin_delete_team(team_id: str):
+    await db.teams.delete_one({"id": team_id})
+    await db.students.update_many(
+        {"teams": team_id},
+        {"$pull": {"teams": team_id}}
+    )
+    await db.teamRequests.delete_many({"teamId": team_id})
+    return {"message": "Team deleted successfully"}
+
+@api_router.post("/admin/teams/{team_id}/remove-member")
+async def admin_remove_member(team_id: str, member_id: str):
+    await db.teams.update_one(
+        {"id": team_id},
+        {"$pull": {"memberIds": member_id}}
+    )
+    await db.students.update_one(
+        {"id": member_id},
+        {"$pull": {"teams": team_id}}
+    )
+    return {"message": "Member removed successfully"}
+
+@api_router.get("/admin/stats")
+async def admin_get_stats():
+    total_students = await db.students.count_documents({})
+    total_teams = await db.teams.count_documents({})
+    total_leaders = await db.students.count_documents({"isLeader": True})
+    pending_requests = await db.teamRequests.count_documents({"status": "pending"})
+    approved_requests = await db.teamRequests.count_documents({"status": "approved"})
+    rejected_requests = await db.teamRequests.count_documents({"status": "rejected"})
+    
+    cse_students = await db.students.count_documents({"branch": "CSE"})
+    ai_students = await db.students.count_documents({"branch": "AI"})
+    
+    return {
+        "totalStudents": total_students,
+        "totalTeams": total_teams,
+        "totalLeaders": total_leaders,
+        "pendingRequests": pending_requests,
+        "approvedRequests": approved_requests,
+        "rejectedRequests": rejected_requests,
+        "cseStudents": cse_students,
+        "aiStudents": ai_students
+    }
+
 app.include_router(api_router)
 
 app.add_middleware(
