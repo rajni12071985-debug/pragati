@@ -194,6 +194,39 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  const handleUploadPhoto = async (e) => {
+    e.preventDefault();
+    if (!newPhoto.eventName || !newPhoto.description || !newPhoto.photoUrl) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API}/photos`, newPhoto);
+      setPhotos([response.data, ...photos]);
+      setNewPhoto({ eventName: '', description: '', photoUrl: '' });
+      setShowUploadPhoto(false);
+      toast.success('Photo uploaded successfully!');
+      fetchAllData();
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast.error('Failed to upload photo');
+    }
+  };
+
+  const handleDeletePhoto = async (photoId) => {
+    if (!window.confirm('Are you sure you want to delete this photo?')) return;
+    
+    try {
+      await axios.delete(`${API}/photos/${photoId}`);
+      setPhotos(photos.filter(p => p.id !== photoId));
+      toast.success('Photo deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      toast.error('Failed to delete photo');
+    }
+  };
+
   const handleDeleteEvent = async (eventId) => {
     if (!window.confirm('Are you sure you want to delete this event?')) return;
     
