@@ -79,6 +79,20 @@ const LoginPage = ({ onLogin }) => {
 
           <form onSubmit={handleLogin} className="glass-card rounded-xl p-8 space-y-6">
             <div className="space-y-2">
+              <Label htmlFor="rollNumber" className="text-slate-300">Roll Number</Label>
+              <Input
+                id="rollNumber"
+                data-testid="login-roll-input"
+                type="text"
+                placeholder="e.g., 2025BTCS282"
+                value={rollNumber}
+                onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
+                className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 h-12 text-slate-200 font-mono"
+              />
+              <p className="text-slate-500 text-xs">Format: YYYYBTCS/AI### (e.g., 2025BTCS282 or 2022BTAI456)</p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="name" className="text-slate-300">Full Name</Label>
               <Input
                 id="name"
