@@ -19,12 +19,20 @@ const AdminDashboard = ({ onLogout }) => {
   const [students, setStudents] = useState([]);
   const [teams, setTeams] = useState([]);
   const [interests, setInterests] = useState([]);
+  const [events, setEvents] = useState([]);
   const [requests, setRequests] = useState([]);
   const [stats, setStats] = useState({});
   const [newInterest, setNewInterest] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [teamSearchTerm, setTeamSearchTerm] = useState('');
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [newEvent, setNewEvent] = useState({
+    name: '',
+    description: '',
+    requiredStudents: '',
+    category: ''
+  });
 
   useEffect(() => {
     fetchAllData();
