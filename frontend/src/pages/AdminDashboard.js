@@ -255,6 +255,9 @@ const AdminDashboard = ({ onLogout }) => {
                 <TabsTrigger data-testid="interests-tab" value="interests" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
                   Interests ({interests.length})
                 </TabsTrigger>
+                <TabsTrigger data-testid="events-tab" value="events" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
+                  Events ({events.length})
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" data-testid="overview-content">
