@@ -919,46 +919,197 @@ const AdminDashboard = ({ onLogout }) => {
                         <p className="text-slate-400">No events created yet</p>
                       </div>
                     ) : (
-                      events.map((event) => (
+                      events.map((event) => {
+                        const totalRequired = event.interestRequirements?.reduce((sum, req) => sum + req.count, 0) || 0;
+                        return (
+                          <div
+                            key={event.id}
+                            data-testid={`event-${event.id}`}
+                            className="glass-card rounded-xl p-6 hover:-translate-y-1 transition-all duration-300"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <h3 className="text-xl font-bold text-cyan-400 mb-2">{event.name}</h3>
+                                <p className="text-slate-400 text-sm mb-3">{event.description}</p>
+                                <div className="space-y-2">
+                                  <p className="text-slate-500 text-xs">Interest Requirements:</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {event.interestRequirements?.map((req, idx) => (
+                                      <span key={idx} className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm border border-purple-500/30">
+                                        {req.interest}: {req.count}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  <div className="flex flex-wrap gap-3 mt-3">
+                                    <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-sm border border-cyan-500/30">
+                                      Total Required: {totalRequired}
+                                    </span>
+                                    <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm border border-green-500/30">
+                                      Interested: {event.interestedStudents?.length || 0}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-2 ml-4">
+                                <Button
+                                  data-testid={`view-interested-${event.id}`}
+                                  onClick={() => viewInterestedStudents(event.id, event.name)}
+                                  className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30"
+                                >
+                                  <Users className="w-4 h-4 mr-2" />
+                                  View
+                                </Button>
+                                <Button
+                                  data-testid={`delete-event-${event.id}`}
+                                  onClick={() => handleDeleteEvent(event.id)}
+                                  variant="ghost"
+                                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="competitions" data-testid="competitions-content">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold font-outfit text-slate-200">Competitions Management</h2>
+                    <Button
+                      data-testid="create-competition-button"
+                      onClick={() => setShowCreateCompetition(!showCreateCompetition)}
+                      className="bg-cyan-500 text-black hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300 font-bold"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Competition
+                    </Button>
+                  </div>
+
+                  {showCreateCompetition && (
+                    <form onSubmit={handleCreateCompetition} className="glass-card rounded-xl p-6 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-slate-300 text-sm mb-2 block">Competition Name*</label>
+                          <Input
+                            data-testid="competition-name-input"
+                            placeholder="e.g., Hackathon 2025"
+                            value={newCompetition.name}
+                            onChange={(e) => setNewCompetition({...newCompetition, name: e.target.value})}
+                            className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-slate-300 text-sm mb-2 block">Event Date*</label>
+                          <Input
+                            data-testid="competition-date-input"
+                            type="date"
+                            value={newCompetition.eventDate}
+                            onChange={(e) => setNewCompetition({...newCompetition, eventDate: e.target.value})}
+                            className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-slate-300 text-sm mb-2 block">Description*</label>
+                        <Input
+                          data-testid="competition-description-input"
+                          placeholder="Brief description of the competition"
+                          value={newCompetition.description}
+                          onChange={(e) => setNewCompetition({...newCompetition, description: e.target.value})}
+                          className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-slate-300 text-sm mb-2 block">Skills Required</label>
+                        <Input
+                          data-testid="competition-skills-input"
+                          placeholder="e.g., Programming, Problem Solving, Teamwork"
+                          value={newCompetition.skillsRequired}
+                          onChange={(e) => setNewCompetition({...newCompetition, skillsRequired: e.target.value})}
+                          className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-slate-300 text-sm mb-2 block">Rules</label>
+                        <textarea
+                          data-testid="competition-rules-input"
+                          placeholder="Competition rules and guidelines..."
+                          value={newCompetition.rules}
+                          onChange={(e) => setNewCompetition({...newCompetition, rules: e.target.value})}
+                          className="w-full bg-slate-950/50 border border-white/10 rounded-md px-3 py-2 text-slate-200 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 min-h-[100px]"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          data-testid="submit-competition-button"
+                          type="submit"
+                          className="bg-cyan-500 text-black hover:bg-cyan-400 font-bold"
+                        >
+                          Create Competition & Notify Students
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => setShowCreateCompetition(false)}
+                          variant="ghost"
+                          className="text-slate-400 hover:text-slate-300"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+
+                  <div className="space-y-4">
+                    {competitions.length === 0 ? (
+                      <div className="glass-card rounded-xl p-12 text-center">
+                        <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-400">No competitions created yet</p>
+                      </div>
+                    ) : (
+                      competitions.map((competition) => (
                         <div
-                          key={event.id}
-                          data-testid={`event-${event.id}`}
+                          key={competition.id}
+                          data-testid={`competition-${competition.id}`}
                           className="glass-card rounded-xl p-6 hover:-translate-y-1 transition-all duration-300"
                         >
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1">
-                              <h3 className="text-xl font-bold text-cyan-400 mb-2">{event.name}</h3>
-                              <p className="text-slate-400 text-sm mb-3">{event.description}</p>
-                              <div className="flex flex-wrap gap-3">
-                                <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm border border-purple-500/30">
-                                  {event.category}
-                                </span>
-                                <span className="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-sm border border-cyan-500/30">
-                                  Required: {event.requiredStudents} students
-                                </span>
-                                <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm border border-green-500/30">
-                                  Interested: {event.interestedStudents?.length || 0}
-                                </span>
+                              <h3 className="text-2xl font-bold text-cyan-400 mb-2">{competition.name}</h3>
+                              <p className="text-slate-300 text-sm mb-3">{competition.description}</p>
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                  <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm border border-green-500/30">
+                                    📅 {new Date(competition.eventDate).toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})}
+                                  </span>
+                                </div>
+                                {competition.skillsRequired && (
+                                  <div>
+                                    <p className="text-slate-500 text-xs mb-1">Skills Required:</p>
+                                    <p className="text-slate-300 text-sm">{competition.skillsRequired}</p>
+                                  </div>
+                                )}
+                                {competition.rules && (
+                                  <div>
+                                    <p className="text-slate-500 text-xs mb-1">Rules:</p>
+                                    <p className="text-slate-300 text-sm">{competition.rules}</p>
+                                  </div>
+                                )}
                               </div>
                             </div>
-                            <div className="flex gap-2 ml-4">
-                              <Button
-                                data-testid={`view-interested-${event.id}`}
-                                onClick={() => viewInterestedStudents(event.id, event.name)}
-                                className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30"
-                              >
-                                <Users className="w-4 h-4 mr-2" />
-                                View Interested
-                              </Button>
-                              <Button
-                                data-testid={`delete-event-${event.id}`}
-                                onClick={() => handleDeleteEvent(event.id)}
-                                variant="ghost"
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
+                            <Button
+                              data-testid={`delete-competition-${competition.id}`}
+                              onClick={() => handleDeleteCompetition(competition.id)}
+                              variant="ghost"
+                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       ))
