@@ -627,6 +627,68 @@ async def delete_message(team_id: str, message_id: str):
         raise HTTPException(status_code=404, detail="Message not found")
     return {"message": "Message deleted successfully"}
 
+@api_router.post("/competitions", response_model=Competition)
+async def create_competition(input: CompetitionCreate):
+    competition = Competition(
+        id=str(uuid.uuid4()),
+        name=input.name,
+        description=input.description,
+        skillsRequired=input.skillsRequired,
+        rules=input.rules,
+        eventDate=input.eventDate,
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    await db.competitions.insert_one(competition.model_dump())
+    
+    all_students = await db.students.find({}, {"_id": 0}).to_list(1000)
+    for student in all_students:
+        notification = Notification(
+            id=str(uuid.uuid4()),
+            studentId=student["id"],
+            title="New Competition Announced!",
+            message=f"{input.name} - Date: {input.eventDate}",
+            type="competition",
+            relatedId=competition.id,
+            isRead=False,
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+        await db.notifications.insert_one(notification.model_dump())
+    
+    return competition
+
+@api_router.get("/competitions", response_model=List[Competition])
+async def get_competitions():
+    competitions = await db.competitions.find({}, {"_id": 0}).to_list(1000)
+    return [Competition(**c) for c in competitions]
+
+@api_router.delete("/competitions/{competition_id}")
+async def delete_competition(competition_id: str):
+    result = await db.competitions.delete_one({"id": competition_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Competition not found")
+    return {"message": "Competition deleted successfully"}
+
+@api_router.get("/notifications/{student_id}", response_model=List[Notification])
+async def get_student_notifications(student_id: str):
+    notifications = await db.notifications.find(
+        {"studentId": student_id},
+        {"_id": 0}
+    ).sort("createdAt", -1).to_list(100)
+    return [Notification(**n) for n in notifications]
+
+@api_router.post("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str):
+    await db.notifications.update_one(
+        {"id": notification_id},
+        {"$set": {"isRead": True}}
+    )
+    return {"message": "Notification marked as read"}
+
+@api_router.get("/notifications/{student_id}/unread-count")
+async def get_unread_count(student_id: str):
+    count = await db.notifications.count_documents({"studentId": student_id, "isRead": False})
+    return {"count": count}
+
 app.include_router(api_router)
 
 app.add_middleware(
