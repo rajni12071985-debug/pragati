@@ -496,13 +496,27 @@ async def create_event(input: EventCreate):
         id=str(uuid.uuid4()),
         name=input.name,
         description=input.description,
-        requiredStudents=input.requiredStudents,
-        category=input.category,
+        interestRequirements=[req.model_dump() for req in input.interestRequirements],
         interestedStudents=[],
         notInterestedStudents=[],
         createdAt=datetime.now(timezone.utc).isoformat()
     )
     await db.events.insert_one(event.model_dump())
+    
+    all_students = await db.students.find({}, {"_id": 0}).to_list(1000)
+    for student in all_students:
+        notification = Notification(
+            id=str(uuid.uuid4()),
+            studentId=student["id"],
+            title="New Event Created!",
+            message=f"Check out the new event: {input.name}",
+            type="event",
+            relatedId=event.id,
+            isRead=False,
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+        await db.notifications.insert_one(notification.model_dump())
+    
     return event
 
 @api_router.get("/events", response_model=List[Event])
