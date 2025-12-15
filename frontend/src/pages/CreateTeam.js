@@ -73,8 +73,8 @@ const CreateTeam = ({ student }) => {
     try {
       await axios.post(`${API}/teams`, {
         name: teamName,
-        leaderId: role === 'leader' ? student.id : '',
-        memberIds: role === 'leader' ? selectedStudents : [student.id],
+        leaderId: student.id,
+        memberIds: role === 'leader' ? selectedStudents : [],
         interests: student.interests
       });
 
