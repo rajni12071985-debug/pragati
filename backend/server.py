@@ -91,7 +91,12 @@ class AdminLogin(BaseModel):
 
 @api_router.post("/auth/student", response_model=Student)
 async def student_login(input: StudentCreate):
-    existing = await db.students.find_one({"name": input.name, "branch": input.branch, "year": input.year}, {"_id": 0})
+    import re
+    roll_pattern = r'^\d{4}BT(CS|AI)\d{3}$'
+    if not re.match(roll_pattern, input.rollNumber):
+        raise HTTPException(status_code=400, detail="Invalid roll number format. Use: YYYYBTCS/AI###")
+    
+    existing = await db.students.find_one({"rollNumber": input.rollNumber}, {"_id": 0})
     
     if existing:
         if isinstance(existing.get('createdAt'), str):
@@ -103,6 +108,7 @@ async def student_login(input: StudentCreate):
         name=input.name,
         branch=input.branch,
         year=input.year,
+        rollNumber=input.rollNumber,
         interests=[],
         teams=[],
         isLeader=False,
