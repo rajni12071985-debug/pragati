@@ -161,16 +161,30 @@ const Dashboard = ({ student, onLogout }) => {
               <p className="text-slate-400 text-sm">View and express interest in events</p>
             </button>
 
+            <button
+              data-testid="svietbook-card"
+              onClick={() => navigate('/svietbook')}
+              className="glass-card rounded-xl p-8 hover:-translate-y-1 hover:border-pink-500/30 transition-all duration-300 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center mb-4 group-hover:bg-pink-500/20 transition-colors">
+                <Camera className="w-6 h-6 text-pink-400" />
+              </div>
+              <h3 className="text-xl font-bold font-outfit mb-2 text-slate-200 group-hover:text-pink-400 transition-colors">
+                SVIETBOOK
+              </h3>
+              <p className="text-slate-400 text-sm">Event photos and memories</p>
+            </button>
+
             {currentStudent.isLeader && (
               <button
                 data-testid="team-requests-card"
                 onClick={() => navigate('/team-requests')}
-                className="glass-card rounded-xl p-8 hover:-translate-y-1 hover:border-pink-500/30 transition-all duration-300 group cursor-pointer"
+                className="glass-card rounded-xl p-8 hover:-translate-y-1 hover:border-yellow-500/30 transition-all duration-300 group cursor-pointer"
               >
-                <div className="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center mb-4 group-hover:bg-pink-500/20 transition-colors">
-                  <List className="w-6 h-6 text-pink-400" />
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/10 flex items-center justify-center mb-4 group-hover:bg-yellow-500/20 transition-colors">
+                  <List className="w-6 h-6 text-yellow-400" />
                 </div>
-                <h3 className="text-xl font-bold font-outfit mb-2 text-slate-200 group-hover:text-pink-400 transition-colors">
+                <h3 className="text-xl font-bold font-outfit mb-2 text-slate-200 group-hover:text-yellow-400 transition-colors">
                   Team Requests
                 </h3>
                 <p className="text-slate-400 text-sm">Manage join requests for your teams</p>
