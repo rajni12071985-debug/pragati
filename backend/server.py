@@ -66,6 +66,7 @@ class Team(BaseModel):
     memberIds: List[str]
     members: List[dict] = Field(default_factory=list)
     interests: List[str]
+    status: str = "pending"
     createdAt: str
 
 class JoinRequestCreate(BaseModel):
