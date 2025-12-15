@@ -92,12 +92,22 @@ const TeamDetails = ({ student }) => {
               <h1 className="text-4xl font-bold font-outfit text-cyan-400 mb-2">{team.name}</h1>
               <p className="text-slate-400">Team Details & Management</p>
             </div>
-            {isLeader && (
-              <span className="px-4 py-2 rounded-full bg-pink-500/20 text-pink-400 font-medium flex items-center gap-2">
-                <Crown className="w-4 h-4" />
-                Team Leader
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              <Button
+                data-testid="team-chat-button"
+                onClick={() => navigate(`/team/${teamId}/chat`)}
+                className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all duration-300 font-bold"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Team Chat
+              </Button>
+              {isLeader && (
+                <span className="px-4 py-2 rounded-full bg-pink-500/20 text-pink-400 font-medium flex items-center gap-2">
+                  <Crown className="w-4 h-4" />
+                  Leader
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
