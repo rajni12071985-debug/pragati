@@ -488,6 +488,55 @@ async def get_interested_students(event_id: str):
         "students": students
     }
 
+class MessageCreate(BaseModel):
+    teamId: str
+    studentId: str
+    studentName: str
+    message: str
+
+class Message(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    teamId: str
+    studentId: str
+    studentName: str
+    message: str
+    createdAt: str
+
+@api_router.post("/teams/{team_id}/messages", response_model=Message)
+async def send_message(team_id: str, input: MessageCreate):
+    team = await db.teams.find_one({"id": team_id}, {"_id": 0})
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    message = Message(
+        id=str(uuid.uuid4()),
+        teamId=team_id,
+        studentId=input.studentId,
+        studentName=input.studentName,
+        message=input.message,
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    
+    await db.messages.insert_one(message.model_dump())
+    return message
+
+@api_router.get("/teams/{team_id}/messages", response_model=List[Message])
+async def get_team_messages(team_id: str):
+    messages = await db.messages.find(
+        {"teamId": team_id},
+        {"_id": 0}
+    ).sort("createdAt", 1).to_list(1000)
+    
+    return [Message(**m) for m in messages]
+
+@api_router.delete("/teams/{team_id}/messages/{message_id}")
+async def delete_message(team_id: str, message_id: str):
+    result = await db.messages.delete_one({"id": message_id, "teamId": team_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return {"message": "Message deleted successfully"}
+
 app.include_router(api_router)
 
 app.add_middleware(
