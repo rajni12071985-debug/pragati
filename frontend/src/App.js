@@ -149,6 +149,16 @@ function App() {
             }
           />
           <Route
+            path="/notifications"
+            element={
+              currentStudent ? (
+                <Notifications student={currentStudent} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
             path="/admin"
             element={
               isAdmin ? (
