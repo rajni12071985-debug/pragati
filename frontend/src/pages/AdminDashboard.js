@@ -222,6 +222,10 @@ const AdminDashboard = ({ onLogout }) => {
     t.leaderName.toLowerCase().includes(teamSearchTerm.toLowerCase())
   );
 
+  const pendingTeams = teams.filter(t => t.status === 'pending');
+  const approvedTeams = teams.filter(t => t.status === 'approved');
+  const rejectedTeams = teams.filter(t => t.status === 'rejected');
+
   const pendingRequests = requests.filter(r => r.status === 'pending');
   const approvedRequests = requests.filter(r => r.status === 'approved');
   const rejectedRequests = requests.filter(r => r.status === 'rejected');
