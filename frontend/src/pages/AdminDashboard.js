@@ -27,8 +27,10 @@ const AdminDashboard = ({ onLogout }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [teamSearchTerm, setTeamSearchTerm] = useState('');
   const [competitions, setCompetitions] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showCreateCompetition, setShowCreateCompetition] = useState(false);
+  const [showUploadPhoto, setShowUploadPhoto] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [interestCounts, setInterestCounts] = useState({});
   const [newEvent, setNewEvent] = useState({
@@ -41,6 +43,11 @@ const AdminDashboard = ({ onLogout }) => {
     skillsRequired: '',
     rules: '',
     eventDate: ''
+  });
+  const [newPhoto, setNewPhoto] = useState({
+    eventName: '',
+    description: '',
+    photoUrl: ''
   });
 
   useEffect(() => {
