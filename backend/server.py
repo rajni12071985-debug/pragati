@@ -378,6 +378,8 @@ async def admin_get_stats():
     cse_students = await db.students.count_documents({"branch": "CSE"})
     ai_students = await db.students.count_documents({"branch": "AI"})
     
+    total_events = await db.events.count_documents({})
+    
     return {
         "totalStudents": total_students,
         "totalTeams": total_teams,
@@ -386,7 +388,104 @@ async def admin_get_stats():
         "approvedRequests": approved_requests,
         "rejectedRequests": rejected_requests,
         "cseStudents": cse_students,
-        "aiStudents": ai_students
+        "aiStudents": ai_students,
+        "totalEvents": total_events
+    }
+
+class EventCreate(BaseModel):
+    name: str
+    description: str
+    requiredStudents: int
+    category: str
+
+class Event(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    description: str
+    requiredStudents: int
+    category: str
+    interestedStudents: List[str] = Field(default_factory=list)
+    notInterestedStudents: List[str] = Field(default_factory=list)
+    createdAt: str
+
+class StudentInterest(BaseModel):
+    eventId: str
+    studentId: str
+    interested: bool
+
+@api_router.post("/events", response_model=Event)
+async def create_event(input: EventCreate):
+    event = Event(
+        id=str(uuid.uuid4()),
+        name=input.name,
+        description=input.description,
+        requiredStudents=input.requiredStudents,
+        category=input.category,
+        interestedStudents=[],
+        notInterestedStudents=[],
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    await db.events.insert_one(event.model_dump())
+    return event
+
+@api_router.get("/events", response_model=List[Event])
+async def get_events():
+    events = await db.events.find({}, {"_id": 0}).to_list(1000)
+    return [Event(**e) for e in events]
+
+@api_router.delete("/events/{event_id}")
+async def delete_event(event_id: str):
+    result = await db.events.delete_one({"id": event_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return {"message": "Event deleted successfully"}
+
+@api_router.post("/events/interest")
+async def mark_interest(input: StudentInterest):
+    event = await db.events.find_one({"id": input.eventId}, {"_id": 0})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    if input.interested:
+        await db.events.update_one(
+            {"id": input.eventId},
+            {
+                "$addToSet": {"interestedStudents": input.studentId},
+                "$pull": {"notInterestedStudents": input.studentId}
+            }
+        )
+        return {"message": "Marked as interested"}
+    else:
+        await db.events.update_one(
+            {"id": input.eventId},
+            {
+                "$addToSet": {"notInterestedStudents": input.studentId},
+                "$pull": {"interestedStudents": input.studentId}
+            }
+        )
+        return {"message": "Marked as not interested"}
+
+@api_router.get("/events/{event_id}/interested")
+async def get_interested_students(event_id: str):
+    event = await db.events.find_one({"id": event_id}, {"_id": 0})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    interested_ids = event.get("interestedStudents", [])
+    students = []
+    
+    for student_id in interested_ids:
+        student = await db.students.find_one({"id": student_id}, {"_id": 0, "id": 1, "name": 1, "branch": 1, "year": 1})
+        if student:
+            students.append(student)
+    
+    return {
+        "eventId": event_id,
+        "eventName": event["name"],
+        "requiredStudents": event["requiredStudents"],
+        "interestedCount": len(interested_ids),
+        "students": students
     }
 
 app.include_router(api_router)
