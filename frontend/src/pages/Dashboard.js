@@ -56,7 +56,7 @@ const Dashboard = ({ student, onLogout }) => {
             <div>
               <h1 className="text-2xl font-bold font-outfit text-gradient">Camplink</h1>
               <p className="text-slate-400 text-sm mt-1">
-                Welcome, <span className="text-cyan-400 font-medium">{student.name}</span>
+                Welcome, <span className="text-cyan-400 font-medium">{currentStudent.name}</span>
               </p>
             </div>
             <div className="flex items-center gap-4">
