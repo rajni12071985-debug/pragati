@@ -105,28 +105,83 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  const toggleInterestSelection = (interestName) => {
+    if (selectedInterests.includes(interestName)) {
+      setSelectedInterests(selectedInterests.filter(i => i !== interestName));
+      const newCounts = { ...interestCounts };
+      delete newCounts[interestName];
+      setInterestCounts(newCounts);
+    } else {
+      setSelectedInterests([...selectedInterests, interestName]);
+      setInterestCounts({ ...interestCounts, [interestName]: 1 });
+    }
+  };
+
+  const updateInterestCount = (interestName, count) => {
+    setInterestCounts({ ...interestCounts, [interestName]: parseInt(count) || 0 });
+  };
+
   const handleCreateEvent = async (e) => {
     e.preventDefault();
-    if (!newEvent.name || !newEvent.description || !newEvent.requiredStudents || !newEvent.category) {
-      toast.error('Please fill all fields');
+    if (!newEvent.name || !newEvent.description || selectedInterests.length === 0) {
+      toast.error('Please fill all fields and select at least one interest');
       return;
     }
+
+    const interestRequirements = selectedInterests.map(interest => ({
+      interest,
+      count: interestCounts[interest] || 1
+    }));
 
     try {
       const response = await axios.post(`${API}/events`, {
         name: newEvent.name,
         description: newEvent.description,
-        requiredStudents: parseInt(newEvent.requiredStudents),
-        category: newEvent.category
+        interestRequirements
       });
       setEvents([...events, response.data]);
-      setNewEvent({ name: '', description: '', requiredStudents: '', category: '' });
+      setNewEvent({ name: '', description: '' });
+      setSelectedInterests([]);
+      setInterestCounts({});
       setShowCreateEvent(false);
-      toast.success('Event created successfully!');
+      toast.success('Event created & notifications sent to all students!');
       fetchAllData();
     } catch (error) {
       console.error('Error creating event:', error);
       toast.error('Failed to create event');
+    }
+  };
+
+  const handleCreateCompetition = async (e) => {
+    e.preventDefault();
+    if (!newCompetition.name || !newCompetition.description || !newCompetition.eventDate) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API}/competitions`, newCompetition);
+      setCompetitions([...competitions, response.data]);
+      setNewCompetition({ name: '', description: '', skillsRequired: '', rules: '', eventDate: '' });
+      setShowCreateCompetition(false);
+      toast.success('Competition created & notifications sent to all students!');
+      fetchAllData();
+    } catch (error) {
+      console.error('Error creating competition:', error);
+      toast.error('Failed to create competition');
+    }
+  };
+
+  const handleDeleteCompetition = async (competitionId) => {
+    if (!window.confirm('Are you sure you want to delete this competition?')) return;
+    
+    try {
+      await axios.delete(`${API}/competitions/${competitionId}`);
+      setCompetitions(competitions.filter(c => c.id !== competitionId));
+      toast.success('Competition deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting competition:', error);
+      toast.error('Failed to delete competition');
     }
   };
 
