@@ -118,7 +118,7 @@ const Dashboard = ({ student, onLogout }) => {
               <p className="text-slate-400 text-sm">Search and join existing teams</p>
             </button>
 
-            {student.isLeader && (
+            {currentStudent.isLeader && (
               <button
                 data-testid="team-requests-card"
                 onClick={() => navigate('/team-requests')}
