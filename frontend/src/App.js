@@ -160,6 +160,16 @@ function App() {
             }
           />
           <Route
+            path="/svietbook"
+            element={
+              currentStudent ? (
+                <Svietbook student={currentStudent} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
             path="/admin"
             element={
               isAdmin ? (
