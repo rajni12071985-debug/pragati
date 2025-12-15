@@ -485,6 +485,21 @@ class Notification(BaseModel):
     isRead: bool
     createdAt: str
 
+class PhotoCreate(BaseModel):
+    eventName: str
+    description: str
+    photoUrl: str
+
+class Photo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    eventName: str
+    description: str
+    photoUrl: str
+    likes: List[str] = Field(default_factory=list)
+    uploadedBy: str
+    createdAt: str
+
 class StudentInterest(BaseModel):
     eventId: str
     studentId: str
