@@ -174,6 +174,30 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  const handleApproveTeam = async (teamId) => {
+    try {
+      await axios.post(`${API}/admin/teams/${teamId}/approve`);
+      toast.success('Team approved successfully!');
+      fetchAllData();
+    } catch (error) {
+      console.error('Error approving team:', error);
+      toast.error('Failed to approve team');
+    }
+  };
+
+  const handleRejectTeam = async (teamId) => {
+    if (!window.confirm('Are you sure you want to reject this team? Students will be removed from it.')) return;
+    
+    try {
+      await axios.post(`${API}/admin/teams/${teamId}/reject`);
+      toast.success('Team rejected successfully!');
+      fetchAllData();
+    } catch (error) {
+      console.error('Error rejecting team:', error);
+      toast.error('Failed to reject team');
+    }
+  };
+
   const handleRemoveMember = async (teamId, memberId) => {
     if (!window.confirm('Remove this member from the team?')) return;
     
