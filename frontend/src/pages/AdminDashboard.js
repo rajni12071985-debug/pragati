@@ -94,6 +94,58 @@ const AdminDashboard = ({ onLogout }) => {
     }
   };
 
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    if (!newEvent.name || !newEvent.description || !newEvent.requiredStudents || !newEvent.category) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API}/events`, {
+        name: newEvent.name,
+        description: newEvent.description,
+        requiredStudents: parseInt(newEvent.requiredStudents),
+        category: newEvent.category
+      });
+      setEvents([...events, response.data]);
+      setNewEvent({ name: '', description: '', requiredStudents: '', category: '' });
+      setShowCreateEvent(false);
+      toast.success('Event created successfully!');
+      fetchAllData();
+    } catch (error) {
+      console.error('Error creating event:', error);
+      toast.error('Failed to create event');
+    }
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    if (!window.confirm('Are you sure you want to delete this event?')) return;
+    
+    try {
+      await axios.delete(`${API}/events/${eventId}`);
+      setEvents(events.filter(e => e.id !== eventId));
+      toast.success('Event deleted successfully!');
+      fetchAllData();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast.error('Failed to delete event');
+    }
+  };
+
+  const viewInterestedStudents = async (eventId, eventName) => {
+    try {
+      const response = await axios.get(`${API}/events/${eventId}/interested`);
+      const data = response.data;
+      
+      const studentList = data.students.map(s => `${s.name} (${s.branch} - ${s.year})`).join('\n');
+      alert(`Event: ${eventName}\n\nRequired: ${data.requiredStudents} students\nInterested: ${data.interestedCount} students\n\n${studentList || 'No students interested yet'}`);
+    } catch (error) {
+      console.error('Error fetching interested students:', error);
+      toast.error('Failed to load interested students');
+    }
+  };
+
   const handleDeleteStudent = async (studentId) => {
     if (!window.confirm('Are you sure you want to delete this student? This will remove them from all teams.')) return;
     
