@@ -157,7 +157,7 @@ const Dashboard = ({ student, onLogout }) => {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <h4 className="text-xl font-bold font-outfit text-cyan-400">{team.name}</h4>
-                      {team.leaderId === student.id && (
+                      {team.leaderId === currentStudent.id && (
                         <span className="text-xs px-2 py-1 rounded-full bg-pink-500/20 text-pink-400 font-medium">
                           Leader
                         </span>
