@@ -823,27 +823,15 @@ const AdminDashboard = ({ onLogout }) => {
 
                   {showCreateEvent && (
                     <form onSubmit={handleCreateEvent} className="glass-card rounded-xl p-6 space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-slate-300 text-sm mb-2 block">Event Name</label>
-                          <Input
-                            data-testid="event-name-input"
-                            placeholder="e.g., Annual Dance Competition"
-                            value={newEvent.name}
-                            onChange={(e) => setNewEvent({...newEvent, name: e.target.value})}
-                            className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-slate-300 text-sm mb-2 block">Category</label>
-                          <Input
-                            data-testid="event-category-input"
-                            placeholder="e.g., Dance, Singing, Sports"
-                            value={newEvent.category}
-                            onChange={(e) => setNewEvent({...newEvent, category: e.target.value})}
-                            className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
-                          />
-                        </div>
+                      <div>
+                        <label className="text-slate-300 text-sm mb-2 block">Event Name</label>
+                        <Input
+                          data-testid="event-name-input"
+                          placeholder="e.g., Annual Fest 2025"
+                          value={newEvent.name}
+                          onChange={(e) => setNewEvent({...newEvent, name: e.target.value})}
+                          className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
+                        />
                       </div>
                       <div>
                         <label className="text-slate-300 text-sm mb-2 block">Description</label>
@@ -856,15 +844,49 @@ const AdminDashboard = ({ onLogout }) => {
                         />
                       </div>
                       <div>
-                        <label className="text-slate-300 text-sm mb-2 block">Required Students</label>
-                        <Input
-                          data-testid="event-required-input"
-                          type="number"
-                          placeholder="e.g., 5"
-                          value={newEvent.requiredStudents}
-                          onChange={(e) => setNewEvent({...newEvent, requiredStudents: e.target.value})}
-                          className="bg-slate-950/50 border-white/10 focus:border-cyan-500/50 text-slate-200"
-                        />
+                        <label className="text-slate-300 text-sm mb-3 block font-bold">Select Required Interests</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                          {interests.map((interest) => (
+                            <div
+                              key={interest.id}
+                              onClick={() => toggleInterestSelection(interest.name)}
+                              className={`glass-card rounded-lg p-3 cursor-pointer transition-all ${
+                                selectedInterests.includes(interest.name)
+                                  ? 'border-cyan-500/50 bg-cyan-500/10'
+                                  : 'hover:border-white/20'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                  selectedInterests.includes(interest.name)
+                                    ? 'border-cyan-500 bg-cyan-500'
+                                    : 'border-slate-600'
+                                }`}>
+                                  {selectedInterests.includes(interest.name) && (
+                                    <Check className="w-3 h-3 text-black" />
+                                  )}
+                                </div>
+                                <span className="text-slate-200 text-sm font-medium">{interest.name}</span>
+                              </div>
+                              {selectedInterests.includes(interest.name) && (
+                                <Input
+                                  type="number"
+                                  placeholder="Count"
+                                  value={interestCounts[interest.name] || ''}
+                                  onChange={(e) => updateInterestCount(interest.name, e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="bg-slate-950/50 border-white/10 h-8 text-slate-200 text-sm"
+                                  min="1"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {selectedInterests.length > 0 && (
+                          <p className="text-cyan-400 text-sm mt-3">
+                            Selected: {selectedInterests.join(', ')}
+                          </p>
+                        )}
                       </div>
                       <div className="flex gap-3">
                         <Button
@@ -872,11 +894,15 @@ const AdminDashboard = ({ onLogout }) => {
                           type="submit"
                           className="bg-cyan-500 text-black hover:bg-cyan-400 font-bold"
                         >
-                          Create Event
+                          Create Event & Notify Students
                         </Button>
                         <Button
                           type="button"
-                          onClick={() => setShowCreateEvent(false)}
+                          onClick={() => {
+                            setShowCreateEvent(false);
+                            setSelectedInterests([]);
+                            setInterestCounts({});
+                          }}
                           variant="ghost"
                           className="text-slate-400 hover:text-slate-300"
                         >
