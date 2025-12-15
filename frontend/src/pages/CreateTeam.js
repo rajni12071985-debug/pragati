@@ -79,7 +79,8 @@ const CreateTeam = ({ student }) => {
       });
 
       toast.success('Team created successfully!');
-      navigate('/dashboard');
+      
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Error creating team:', error);
       toast.error('Failed to create team');
