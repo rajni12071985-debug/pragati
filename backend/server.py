@@ -704,6 +704,52 @@ async def get_unread_count(student_id: str):
     count = await db.notifications.count_documents({"studentId": student_id, "isRead": False})
     return {"count": count}
 
+@api_router.post("/photos", response_model=Photo)
+async def create_photo(input: PhotoCreate):
+    photo = Photo(
+        id=str(uuid.uuid4()),
+        eventName=input.eventName,
+        description=input.description,
+        photoUrl=input.photoUrl,
+        likes=[],
+        uploadedBy="admin",
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    await db.photos.insert_one(photo.model_dump())
+    return photo
+
+@api_router.get("/photos", response_model=List[Photo])
+async def get_photos():
+    photos = await db.photos.find({}, {"_id": 0}).sort("createdAt", -1).to_list(1000)
+    return [Photo(**p) for p in photos]
+
+@api_router.delete("/photos/{photo_id}")
+async def delete_photo(photo_id: str):
+    result = await db.photos.delete_one({"id": photo_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    return {"message": "Photo deleted successfully"}
+
+@api_router.post("/photos/{photo_id}/like")
+async def like_photo(photo_id: str, student_id: str):
+    photo = await db.photos.find_one({"id": photo_id}, {"_id": 0})
+    if not photo:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    
+    likes = photo.get("likes", [])
+    if student_id in likes:
+        await db.photos.update_one(
+            {"id": photo_id},
+            {"$pull": {"likes": student_id}}
+        )
+        return {"message": "Photo unliked", "liked": False}
+    else:
+        await db.photos.update_one(
+            {"id": photo_id},
+            {"$addToSet": {"likes": student_id}}
+        )
+        return {"message": "Photo liked", "liked": True}
+
 app.include_router(api_router)
 
 app.add_middleware(
