@@ -153,10 +153,11 @@ const Dashboard = ({ student, onLogout }) => {
                   <div
                     key={team.id}
                     data-testid={`team-card-${team.id}`}
-                    className="glass-card rounded-xl p-6 hover:-translate-y-1 transition-all duration-300"
+                    onClick={() => navigate(`/team/${team.id}`)}
+                    className="glass-card rounded-xl p-6 hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
                   >
                     <div className="flex items-start justify-between mb-4">
-                      <h4 className="text-xl font-bold font-outfit text-cyan-400">{team.name}</h4>
+                      <h4 className="text-xl font-bold font-outfit text-cyan-400 group-hover:text-cyan-300 transition-colors">{team.name}</h4>
                       {team.leaderId === currentStudent.id && (
                         <span className="text-xs px-2 py-1 rounded-full bg-pink-500/20 text-pink-400 font-medium">
                           Leader
@@ -170,16 +171,14 @@ const Dashboard = ({ student, onLogout }) => {
                       </div>
                       <div>
                         <p className="text-slate-500 text-xs mb-2">Members ({team.members.length})</p>
-                        <div className="flex flex-wrap gap-2">
-                          {team.members.slice(0, 3).map((member) => (
+                        <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
+                          {team.members.map((member) => (
                             <span key={member.id} className="text-xs px-2 py-1 rounded-full bg-slate-800/50 text-slate-400">
                               {member.name}
                             </span>
                           ))}
-                          {team.members.length > 3 && (
-                            <span className="text-xs px-2 py-1 rounded-full bg-slate-800/50 text-slate-400">
-                              +{team.members.length - 3} more
-                            </span>
+                          {team.members.length === 0 && (
+                            <span className="text-xs text-slate-500 italic">No members yet</span>
                           )}
                         </div>
                       </div>
@@ -193,6 +192,9 @@ const Dashboard = ({ student, onLogout }) => {
                           ))}
                         </div>
                       </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                      <p className="text-xs text-slate-500 group-hover:text-cyan-400 transition-colors">Click to view details →</p>
                     </div>
                   </div>
                 ))}
