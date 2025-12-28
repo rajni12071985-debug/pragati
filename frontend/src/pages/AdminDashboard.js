@@ -59,7 +59,7 @@ const AdminDashboard = ({ onLogout }) => {
 
   const fetchAllData = async () => {
     try {
-      const [studentsRes, teamsRes, interestsRes, requestsRes, statsRes, eventsRes, competitionsRes, photosRes] = await Promise.all([
+      const [studentsRes, teamsRes, interestsRes, requestsRes, statsRes, eventsRes, competitionsRes, photosRes, leavesRes] = await Promise.all([
         axios.get(`${API}/admin/students`),
         axios.get(`${API}/admin/teams`),
         axios.get(`${API}/interests`),
@@ -67,7 +67,8 @@ const AdminDashboard = ({ onLogout }) => {
         axios.get(`${API}/admin/stats`),
         axios.get(`${API}/events`),
         axios.get(`${API}/competitions`),
-        axios.get(`${API}/photos`)
+        axios.get(`${API}/photos`),
+        axios.get(`${API}/admin/leave-applications`)
       ]);
 
       setStudents(studentsRes.data);
@@ -78,11 +79,27 @@ const AdminDashboard = ({ onLogout }) => {
       setEvents(eventsRes.data);
       setCompetitions(competitionsRes.data);
       setPhotos(photosRes.data);
+      setLeaveApplications(leavesRes.data);
     } catch (error) {
       console.error('Error fetching admin data:', error);
       toast.error('Failed to load admin data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLeaveAction = async (leaveId, action, comment = '') => {
+    try {
+      await axios.post(`${API}/admin/leave-applications/action`, {
+        leaveId,
+        action,
+        comment
+      });
+      toast.success(`Leave ${action === 'approve' ? 'approved' : 'rejected'} successfully!`);
+      fetchAllData();
+    } catch (error) {
+      console.error('Error handling leave action:', error);
+      toast.error('Failed to process leave action');
     }
   };
 
