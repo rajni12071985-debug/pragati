@@ -67,16 +67,17 @@ class CamplinkAPITester:
         """Test student authentication"""
         print("\n🔍 Testing Student Authentication...")
         
-        # Test student login/registration
+        # Test student login/registration with CSE branch
         success, response = self.run_test(
-            "Student Login/Registration",
+            "Student Login/Registration (CSE)",
             "POST",
             "auth/student",
             200,
             data={
-                "name": "Test Student",
+                "name": "John Doe",
                 "branch": "CSE",
-                "year": "2023"
+                "year": "2023",
+                "rollNumber": "2023BTCS001"
             }
         )
         
@@ -85,6 +86,59 @@ class CamplinkAPITester:
             print(f"   Student ID: {self.student_id}")
             return True
         return False
+
+    def test_csd_branch_support(self):
+        """Test CSD branch support in roll number validation"""
+        print("\n🔍 Testing CSD Branch Support...")
+        
+        # Test CSD student creation with valid roll number
+        success, response = self.run_test(
+            "CSD Student Creation (Valid Roll Number)",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "name": "Test CSD Student",
+                "branch": "CSD",
+                "year": "2025",
+                "rollNumber": "2025BTCSD123"
+            }
+        )
+        
+        csd_student_id = None
+        if success and 'id' in response:
+            csd_student_id = response['id']
+            print(f"   CSD Student ID: {csd_student_id}")
+        
+        # Test invalid CSD roll number format
+        success, response = self.run_test(
+            "CSD Student Creation (Invalid Roll Number)",
+            "POST",
+            "auth/student",
+            400,
+            data={
+                "name": "Invalid CSD Student",
+                "branch": "CSD", 
+                "year": "2025",
+                "rollNumber": "2025BTCSD12"  # Invalid - only 2 digits at end
+            }
+        )
+        
+        # Test another valid CSD roll number
+        success, response = self.run_test(
+            "CSD Student Creation (Another Valid Roll Number)",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "name": "Another CSD Student",
+                "branch": "CSD",
+                "year": "2024",
+                "rollNumber": "2024BTCSD456"
+            }
+        )
+        
+        return csd_student_id is not None
 
     def test_interests_management(self):
         """Test interests CRUD operations"""
