@@ -297,7 +297,8 @@ class CamplinkAPITester:
             data={
                 "name": "Test Student 2",
                 "branch": "AI",
-                "year": "2024"
+                "year": "2024",
+                "rollNumber": "2024BTAI002"
             }
         )
         
