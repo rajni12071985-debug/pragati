@@ -8,7 +8,7 @@ import {
   LogOut, Users, Shield, Plus, Trash2, 
   TrendingUp, UserCheck, FileText, AlertCircle,
   Search, Edit, X, Check, Menu, LayoutDashboard,
-  Calendar, Trophy, Camera, Heart
+  Calendar, Trophy, Camera, Heart, ClipboardList
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -28,6 +28,7 @@ const AdminDashboard = ({ onLogout }) => {
   const [teamSearchTerm, setTeamSearchTerm] = useState('');
   const [competitions, setCompetitions] = useState([]);
   const [photos, setPhotos] = useState([]);
+  const [leaveApplications, setLeaveApplications] = useState([]);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showCreateCompetition, setShowCreateCompetition] = useState(false);
   const [showUploadPhoto, setShowUploadPhoto] = useState(false);
