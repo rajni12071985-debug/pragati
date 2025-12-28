@@ -356,7 +356,7 @@ class CamplinkAPITester:
             "POST",
             "admin/login",
             200,
-            data={"password": "PRAGATI"}
+            data={"password": "AURORA"}
         )
         
         # Admin login with wrong password
@@ -383,6 +383,26 @@ class CamplinkAPITester:
             "admin/teams",
             200
         )
+        
+        # Get admin stats (including CSD count)
+        success, response = self.run_test(
+            "Admin Get Stats",
+            "GET",
+            "admin/stats",
+            200
+        )
+        
+        if success:
+            print(f"   Total Students: {response.get('totalStudents', 0)}")
+            print(f"   CSE Students: {response.get('cseStudents', 0)}")
+            print(f"   AI Students: {response.get('aiStudents', 0)}")
+            print(f"   CSD Students: {response.get('csdStudents', 0)}")
+            
+            # Verify CSD students count is included
+            if 'csdStudents' in response:
+                self.log_test("Admin Stats includes CSD count", True, f"CSD Students: {response['csdStudents']}")
+            else:
+                self.log_test("Admin Stats includes CSD count", False, "csdStudents field missing from response")
         
         return True
 
