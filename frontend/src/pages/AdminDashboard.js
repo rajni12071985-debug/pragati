@@ -33,6 +33,8 @@ const AdminDashboard = ({ onLogout }) => {
   const [showUploadPhoto, setShowUploadPhoto] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [interestCounts, setInterestCounts] = useState({});
+  const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
     name: '',
     description: ''
