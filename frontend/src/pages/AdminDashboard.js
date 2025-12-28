@@ -8,7 +8,8 @@ import { toast } from 'sonner';
 import { 
   LogOut, Users, Shield, Plus, Trash2, 
   TrendingUp, UserCheck, FileText, AlertCircle,
-  Search, Edit, X, Check
+  Search, Edit, X, Check, Menu, LayoutDashboard,
+  Calendar, Trophy, Camera, Heart
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
