@@ -212,7 +212,7 @@ const LeaveApplication = ({ student }) => {
               <div className="glass-card rounded-xl p-12 text-center">
                 <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
                 <p className="text-slate-400">No leave applications yet</p>
-                <p className="text-slate-500 text-sm mt-2">Click "Apply for Leave" to submit your first application</p>
+                <p className="text-slate-500 text-sm mt-2">Click &quot;Apply for Leave&quot; to submit your first application</p>
               </div>
             ) : (
               <div className="space-y-4">
