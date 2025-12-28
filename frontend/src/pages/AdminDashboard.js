@@ -340,71 +340,116 @@ const AdminDashboard = ({ onLogout }) => {
   const approvedRequests = requests.filter(r => r.status === 'approved');
   const rejectedRequests = requests.filter(r => r.status === 'rejected');
 
+  const sidebarItems = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'students', label: 'Students', icon: Users, count: students.length },
+    { id: 'teams', label: 'Teams', icon: TrendingUp, count: teams.length },
+    { id: 'requests', label: 'Requests', icon: UserCheck, count: pendingRequests.length },
+    { id: 'interests', label: 'Interests', icon: Heart, count: interests.length },
+    { id: 'events', label: 'Events', icon: Calendar, count: events.length },
+    { id: 'competitions', label: 'Competitions', icon: Trophy, count: competitions.length },
+    { id: 'svietbook', label: 'SVIETBOOK', icon: Camera, count: photos.length },
+  ];
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 z-0 bg-[#020617]">
         <div className="absolute top-0 left-0 right-0 h-96 opacity-20" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(6,182,212,0.15) 0%, transparent 50%)' }}></div>
       </div>
 
-      <div className="relative z-10">
-        <nav className="glass-card border-b border-white/5 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center">
-                <Shield className="w-5 h-5 text-pink-400" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold font-outfit text-gradient">Admin Portal</h1>
-                <p className="text-slate-400 text-sm">Camplink Management</p>
+      <div className="relative z-10 flex">
+        {/* Sidebar */}
+        <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 glass-card border-r border-white/5 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          <div className="flex flex-col h-full">
+            {/* Logo */}
+            <div className="p-6 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-pink-400" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold font-outfit text-gradient">Admin Portal</h1>
+                  <p className="text-slate-500 text-xs">Camplink</p>
+                </div>
               </div>
             </div>
-            <Button
-              data-testid="admin-logout-button"
-              onClick={onLogout}
-              variant="ghost"
-              className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+
+            {/* Navigation Items */}
+            <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+              {sidebarItems.map((item) => (
+                <button
+                  key={item.id}
+                  data-testid={`sidebar-${item.id}`}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    activeTab === item.id 
+                      ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                      : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label}</span>
+                  {item.count !== undefined && (
+                    <span className={`ml-auto px-2 py-0.5 rounded-full text-xs ${
+                      activeTab === item.id ? 'bg-cyan-500/30 text-cyan-300' : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </nav>
+
+            {/* Logout Button */}
+            <div className="p-4 border-t border-white/5">
+              <Button
+                data-testid="admin-logout-button"
+                onClick={onLogout}
+                variant="ghost"
+                className="w-full justify-start text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
-        </nav>
+        </aside>
 
-        <div className="max-w-7xl mx-auto p-6 py-12">
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
-            </div>
-          ) : (
-            <Tabs defaultValue="overview" className="space-y-8">
-              <TabsList className="glass-card border border-white/5">
-                <TabsTrigger data-testid="overview-tab" value="overview" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger data-testid="students-tab" value="students" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Students ({students.length})
-                </TabsTrigger>
-                <TabsTrigger data-testid="teams-tab" value="teams" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Teams ({teams.length})
-                </TabsTrigger>
-                <TabsTrigger data-testid="requests-tab" value="requests" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Requests ({pendingRequests.length})
-                </TabsTrigger>
-                <TabsTrigger data-testid="interests-tab" value="interests" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Interests ({interests.length})
-                </TabsTrigger>
-                <TabsTrigger data-testid="events-tab" value="events" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Events ({events.length})
-                </TabsTrigger>
-                <TabsTrigger data-testid="competitions-tab" value="competitions" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  Competitions ({competitions.length})
-                </TabsTrigger>
-                <TabsTrigger data-testid="svietbook-tab" value="svietbook" className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400">
-                  SVIETBOOK ({photos.length})
-                </TabsTrigger>
-              </TabsList>
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-              <TabsContent value="overview" data-testid="overview-content">
+        {/* Main Content */}
+        <main className="flex-1 min-h-screen">
+          {/* Top Bar for Mobile */}
+          <div className="lg:hidden glass-card border-b border-white/5 px-4 py-3 flex items-center justify-between">
+            <button
+              data-testid="sidebar-toggle"
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 rounded-lg text-slate-400 hover:bg-white/5"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-lg font-bold text-gradient">Admin Portal</h1>
+            <div className="w-10"></div>
+          </div>
+
+          <div className="p-6 lg:p-8">
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {/* Overview Tab */}
+                {activeTab === 'overview' && (
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold font-outfit text-slate-200">System Overview</h2>
                   
