@@ -1,0 +1,82 @@
+{
+  "total_tests": 15,
+  "passed_tests": 14,
+  "success_rate": 93.33333333333333,
+  "results": [
+    {
+      "test": "Valid CSD Roll Number: 2025BTCSD123",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Valid CSD Roll Number: 2024BTCSD456",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Valid CSD Roll Number: 2023BTCSD789",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Valid CSD Roll Number: 2026BTCSD001",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 2025BTCSD12",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 2025BTCSD1234",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 25BTCSD123",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 2025CSDBT123",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 2025BTCS123",
+      "status": "FAILED",
+      "details": "Status: 200, Expected: 400, Response: {'id': '7f382b95-b68f-4a33-9894-7cd770971d8b', 'name': 'Invalid CSD Student', 'branch': 'CSD', 'year': '2025', 'rollNumber': '2025BTCS123', 'interests': [], 'teams': [], 'isLeader': False, 'createdAt': '2025-12-28T05:53:30.521326+00:00'}"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 2025BTCSD",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Admin Login with AURORA",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Login with Wrong Password",
+      "status": "PASSED",
+      "details": "Status: 401, Expected: 401"
+    },
+    {
+      "test": "Admin Stats Endpoint",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Stats has all branch counts",
+      "status": "PASSED",
+      "details": "All branch counts present"
+    },
+    {
+      "test": "CSD Students count is valid",
+      "status": "PASSED",
+      "details": "CSD count: 5"
+    }
+  ]
+}
