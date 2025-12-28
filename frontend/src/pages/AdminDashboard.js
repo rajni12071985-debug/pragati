@@ -574,9 +574,10 @@ const AdminDashboard = ({ onLogout }) => {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="students" data-testid="students-content">
+                {/* Students Tab */}
+                {activeTab === 'students' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold font-outfit text-slate-200">All Students</h2>
@@ -630,9 +631,10 @@ const AdminDashboard = ({ onLogout }) => {
                     ))}
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="teams" data-testid="teams-content">
+                {/* Teams Tab */}
+                {activeTab === 'teams' && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold font-outfit text-slate-200">Team Management</h2>
                   
@@ -785,9 +787,10 @@ const AdminDashboard = ({ onLogout }) => {
                     )}
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="requests" data-testid="requests-content">
+                {/* Requests Tab */}
+                {activeTab === 'requests' && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold font-outfit text-slate-200">Team Requests</h2>
                   
@@ -860,9 +863,10 @@ const AdminDashboard = ({ onLogout }) => {
                     </div>
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="interests" data-testid="interests-content">
+                {/* Interests Tab */}
+                {activeTab === 'interests' && (
                 <div className="space-y-6">
                   <div>
                     <h2 className="text-2xl font-bold font-outfit text-slate-200 mb-4">Manage Interests</h2>
@@ -909,9 +913,10 @@ const AdminDashboard = ({ onLogout }) => {
                     ))}
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="events" data-testid="events-content">
+                {/* Events Tab */}
+                {activeTab === 'events' && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold font-outfit text-slate-200">Events Management</h2>
@@ -1079,9 +1084,10 @@ const AdminDashboard = ({ onLogout }) => {
                     )}
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="competitions" data-testid="competitions-content">
+                {/* Competitions Tab */}
+                {activeTab === 'competitions' && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold font-outfit text-slate-200">Competitions Management</h2>
@@ -1220,9 +1226,10 @@ const AdminDashboard = ({ onLogout }) => {
                     )}
                   </div>
                 </div>
-              </TabsContent>
+                )}
 
-              <TabsContent value="svietbook" data-testid="svietbook-content">
+                {/* SVIETBOOK Tab */}
+                {activeTab === 'svietbook' && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold font-outfit text-slate-200">SVIETBOOK - Event Gallery</h2>
@@ -1345,10 +1352,11 @@ const AdminDashboard = ({ onLogout }) => {
                     )}
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
-          )}
-        </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
       </div>
     </div>
   );
