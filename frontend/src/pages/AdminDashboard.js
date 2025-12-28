@@ -486,6 +486,18 @@ const AdminDashboard = ({ onLogout }) => {
                             ></div>
                           </div>
                         </div>
+                        <div>
+                          <div className="flex justify-between mb-2">
+                            <span className="text-slate-400">CSD</span>
+                            <span className="text-pink-400 font-bold">{stats.csdStudents || 0}</span>
+                          </div>
+                          <div className="w-full bg-slate-800/50 rounded-full h-2">
+                            <div 
+                              className="bg-pink-500 h-2 rounded-full transition-all duration-500" 
+                              style={{ width: `${(stats.csdStudents / stats.totalStudents * 100) || 0}%` }}
+                            ></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 

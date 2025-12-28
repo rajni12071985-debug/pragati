@@ -423,6 +423,7 @@ async def admin_get_stats():
     
     cse_students = await db.students.count_documents({"branch": "CSE"})
     ai_students = await db.students.count_documents({"branch": "AI"})
+    csd_students = await db.students.count_documents({"branch": "CSD"})
     
     total_events = await db.events.count_documents({})
     
@@ -435,6 +436,7 @@ async def admin_get_stats():
         "rejectedRequests": rejected_requests,
         "cseStudents": cse_students,
         "aiStudents": ai_students,
+        "csdStudents": csd_students,
         "totalEvents": total_events
     }
 
