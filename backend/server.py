@@ -93,7 +93,7 @@ class AdminLogin(BaseModel):
 @api_router.post("/auth/student", response_model=Student)
 async def student_login(input: StudentCreate):
     import re
-    roll_pattern = r'^\d{4}BT(CS|AI|CSD)\d{3}$'
+    roll_pattern = r'^\d{4}BT(CSD|CS|AI)\d{3}$'
     if not re.match(roll_pattern, input.rollNumber):
         raise HTTPException(status_code=400, detail="Invalid roll number format. Use: YYYYBT(CS/AI/CSD)###")
     
