@@ -277,6 +277,10 @@ async def create_join_request(input: JoinRequestCreate):
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     
+    # Check if student is already in any team
+    if student.get("teams") and len(student.get("teams", [])) > 0:
+        raise HTTPException(status_code=400, detail="You are already in a team. Cannot join another team.")
+    
     existing = await db.teamRequests.find_one(
         {"teamId": input.teamId, "studentId": input.studentId, "status": "pending"},
         {"_id": 0}
