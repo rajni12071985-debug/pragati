@@ -90,6 +90,34 @@ class RequestAction(BaseModel):
 class AdminLogin(BaseModel):
     password: str
 
+# Leave Application Models
+class LeaveApplicationCreate(BaseModel):
+    studentId: str
+    reason: str
+    fromDate: str
+    toDate: str
+    documentUrl: Optional[str] = None
+
+class LeaveApplication(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    studentId: str
+    studentName: str
+    studentRollNumber: str
+    studentBranch: str
+    reason: str
+    fromDate: str
+    toDate: str
+    documentUrl: Optional[str] = None
+    status: str = "pending"
+    adminComment: Optional[str] = None
+    createdAt: str
+
+class LeaveAction(BaseModel):
+    leaveId: str
+    action: str
+    comment: Optional[str] = None
+
 @api_router.post("/auth/student", response_model=Student)
 async def student_login(input: StudentCreate):
     import re
