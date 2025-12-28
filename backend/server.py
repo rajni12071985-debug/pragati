@@ -829,12 +829,12 @@ async def get_student_leaves(student_id: str):
         {"studentId": student_id},
         {"_id": 0}
     ).sort("createdAt", -1).to_list(100)
-    return [LeaveApplication(**l) for l in leaves]
+    return [LeaveApplication(**leave) for leave in leaves]
 
 @api_router.get("/admin/leave-applications", response_model=List[LeaveApplication])
 async def get_all_leaves():
     leaves = await db.leaveApplications.find({}, {"_id": 0}).sort("createdAt", -1).to_list(1000)
-    return [LeaveApplication(**l) for l in leaves]
+    return [LeaveApplication(**leave) for leave in leaves]
 
 @api_router.post("/admin/leave-applications/action")
 async def handle_leave_action(input: LeaveAction):
