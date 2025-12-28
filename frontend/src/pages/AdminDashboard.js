@@ -1249,6 +1249,104 @@ const AdminDashboard = ({ onLogout }) => {
                 </div>
                 )}
 
+                {/* Leave Applications Tab */}
+                {activeTab === 'leaves' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold font-outfit text-slate-200">Leave Applications</h2>
+                  
+                  <div className="space-y-4">
+                    {leaveApplications.length === 0 ? (
+                      <div className="glass-card rounded-xl p-12 text-center">
+                        <ClipboardList className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                        <p className="text-slate-400">No leave applications yet</p>
+                      </div>
+                    ) : (
+                      leaveApplications.map((leave) => (
+                        <div
+                          key={leave.id}
+                          className="glass-card rounded-xl p-6 hover:-translate-y-1 transition-all duration-300"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="text-lg font-bold text-cyan-400">{leave.studentName}</h3>
+                                <span className="px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 text-xs">
+                                  {leave.studentRollNumber}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-xs">
+                                  {leave.studentBranch}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-slate-400 text-sm mb-2">
+                                <Calendar className="w-4 h-4" />
+                                {new Date(leave.fromDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                {' → '}
+                                {new Date(leave.toDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </div>
+                              <p className="text-slate-300 mb-3">{leave.reason}</p>
+                              {leave.documentUrl && (
+                                <a
+                                  href={leave.documentUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-sm"
+                                >
+                                  <FileText className="w-4 h-4" />
+                                  View Document
+                                </a>
+                              )}
+                              {leave.adminComment && (
+                                <p className="mt-2 text-slate-400 text-sm italic">
+                                  Comment: {leave.adminComment}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              {leave.status === 'pending' ? (
+                                <>
+                                  <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-sm border border-yellow-500/30">
+                                    Pending
+                                  </span>
+                                  <div className="flex gap-2 mt-2">
+                                    <Button
+                                      onClick={() => handleLeaveAction(leave.id, 'approve')}
+                                      className="bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30"
+                                      size="sm"
+                                    >
+                                      <Check className="w-4 h-4 mr-1" />
+                                      Approve
+                                    </Button>
+                                    <Button
+                                      onClick={() => handleLeaveAction(leave.id, 'reject')}
+                                      className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
+                                      size="sm"
+                                    >
+                                      <X className="w-4 h-4 mr-1" />
+                                      Reject
+                                    </Button>
+                                  </div>
+                                </>
+                              ) : leave.status === 'approved' ? (
+                                <span className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm border border-green-500/30">
+                                  ✅ Approved
+                                </span>
+                              ) : (
+                                <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-sm border border-red-500/30">
+                                  ❌ Rejected
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-slate-500 text-xs">
+                            Applied on: {new Date(leave.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+                )}
+
                 {/* SVIETBOOK Tab */}
                 {activeTab === 'svietbook' && (
                 <div className="space-y-6">
