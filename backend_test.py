@@ -407,6 +407,362 @@ class CamplinkAPITester:
         
         return True
 
+    def test_leave_application_system(self):
+        """Test Leave Application System"""
+        print("\n🔍 Testing Leave Application System...")
+        
+        # Create a student first for leave testing
+        success, response = self.run_test(
+            "Create Leave Test Student",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "rollNumber": "2025BTCSD999",
+                "name": "Leave Test Student",
+                "branch": "CSD",
+                "year": "2025"
+            }
+        )
+        
+        leave_student_id = None
+        if success and 'id' in response:
+            leave_student_id = response['id']
+            print(f"   Leave Test Student ID: {leave_student_id}")
+        
+        if not leave_student_id:
+            self.log_test("Leave Application System", False, "Failed to create test student")
+            return False
+        
+        # Submit leave application
+        success, response = self.run_test(
+            "Submit Leave Application",
+            "POST",
+            "leave-applications",
+            200,
+            data={
+                "studentId": leave_student_id,
+                "reason": "Medical emergency",
+                "fromDate": "2025-01-01",
+                "toDate": "2025-01-05",
+                "documentUrl": "https://example.com/medical.pdf"
+            }
+        )
+        
+        leave_id = None
+        if success and 'id' in response:
+            leave_id = response['id']
+            print(f"   Leave Application ID: {leave_id}")
+        
+        # Get student leaves
+        success, response = self.run_test(
+            "Get Student Leaves",
+            "GET",
+            f"leave-applications/student/{leave_student_id}",
+            200
+        )
+        
+        # Get all leaves (admin)
+        success, response = self.run_test(
+            "Get All Leaves (Admin)",
+            "GET",
+            "admin/leave-applications",
+            200
+        )
+        
+        # Approve leave
+        if leave_id:
+            success, _ = self.run_test(
+                "Approve Leave Application",
+                "POST",
+                "admin/leave-applications/action",
+                200,
+                data={
+                    "leaveId": leave_id,
+                    "action": "approve"
+                }
+            )
+        
+        # Create another leave for rejection test
+        success, response = self.run_test(
+            "Submit Second Leave Application",
+            "POST",
+            "leave-applications",
+            200,
+            data={
+                "studentId": leave_student_id,
+                "reason": "Personal work",
+                "fromDate": "2025-02-01",
+                "toDate": "2025-02-03",
+                "documentUrl": "https://example.com/personal.pdf"
+            }
+        )
+        
+        second_leave_id = None
+        if success and 'id' in response:
+            second_leave_id = response['id']
+        
+        # Reject leave
+        if second_leave_id:
+            success, _ = self.run_test(
+                "Reject Leave Application",
+                "POST",
+                "admin/leave-applications/action",
+                200,
+                data={
+                    "leaveId": second_leave_id,
+                    "action": "reject"
+                }
+            )
+        
+        return True
+
+    def test_team_member_single_team_restriction(self):
+        """Test Team Member Single Team Restriction"""
+        print("\n🔍 Testing Team Member Single Team Restriction...")
+        
+        # Create a student for team restriction testing
+        success, response = self.run_test(
+            "Create Team Restriction Test Student",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "rollNumber": "2025BTCSD888",
+                "name": "Team Restriction Test Student",
+                "branch": "CSD",
+                "year": "2025"
+            }
+        )
+        
+        restriction_student_id = None
+        if success and 'id' in response:
+            restriction_student_id = response['id']
+            print(f"   Restriction Test Student ID: {restriction_student_id}")
+        
+        if not restriction_student_id:
+            self.log_test("Team Member Single Team Restriction", False, "Failed to create test student")
+            return False
+        
+        # Create first team with this student as leader
+        success, response = self.run_test(
+            "Create First Team (Should Succeed)",
+            "POST",
+            "teams",
+            200,
+            data={
+                "name": "First Team Alpha",
+                "leaderId": restriction_student_id,
+                "memberIds": [],
+                "interests": ["Web Development"]
+            }
+        )
+        
+        first_team_id = None
+        if success and 'id' in response:
+            first_team_id = response['id']
+            print(f"   First Team ID: {first_team_id}")
+        
+        # Try to create another team with the same student as leader - should FAIL
+        success, response = self.run_test(
+            "Create Second Team (Should Fail - Already in Team)",
+            "POST",
+            "teams",
+            400,
+            data={
+                "name": "Second Team Beta",
+                "leaderId": restriction_student_id,
+                "memberIds": [],
+                "interests": ["Backend"]
+            }
+        )
+        
+        # Verify the error message
+        if not success:
+            try:
+                error_detail = response if isinstance(response, dict) else {}
+                if "already in a team" in str(error_detail).lower():
+                    self.log_test("Team Creation Restriction Error Message", True, "Correct error message returned")
+                else:
+                    self.log_test("Team Creation Restriction Error Message", False, f"Unexpected error: {error_detail}")
+            except:
+                self.log_test("Team Creation Restriction Error Message", True, "Request properly rejected")
+        
+        # Create another team with different leader for join request test
+        success, response = self.run_test(
+            "Create Another Student for Different Team",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "rollNumber": "2025BTCSD777",
+                "name": "Different Team Leader",
+                "branch": "CSD",
+                "year": "2025"
+            }
+        )
+        
+        different_leader_id = None
+        if success and 'id' in response:
+            different_leader_id = response['id']
+        
+        if different_leader_id:
+            success, response = self.run_test(
+                "Create Different Team",
+                "POST",
+                "teams",
+                200,
+                data={
+                    "name": "Different Team Gamma",
+                    "leaderId": different_leader_id,
+                    "memberIds": [],
+                    "interests": ["Java"]
+                }
+            )
+            
+            different_team_id = None
+            if success and 'id' in response:
+                different_team_id = response['id']
+            
+            # Try to send join request from the student who is already in a team - should FAIL
+            if different_team_id:
+                success, response = self.run_test(
+                    "Send Join Request (Should Fail - Already in Team)",
+                    "POST",
+                    "team-requests",
+                    400,
+                    data={
+                        "teamId": different_team_id,
+                        "studentId": restriction_student_id
+                    }
+                )
+                
+                # Verify the error message
+                if not success:
+                    try:
+                        error_detail = response if isinstance(response, dict) else {}
+                        if "already in a team" in str(error_detail).lower():
+                            self.log_test("Join Request Restriction Error Message", True, "Correct error message returned")
+                        else:
+                            self.log_test("Join Request Restriction Error Message", False, f"Unexpected error: {error_detail}")
+                    except:
+                        self.log_test("Join Request Restriction Error Message", True, "Request properly rejected")
+        
+        return True
+
+    def test_unique_team_name_validation(self):
+        """Test Unique Team Name Validation"""
+        print("\n🔍 Testing Unique Team Name Validation...")
+        
+        # Create students for team name testing
+        success, response = self.run_test(
+            "Create Team Name Test Student 1",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "rollNumber": "2025BTCSD666",
+                "name": "Team Name Test Student 1",
+                "branch": "CSD",
+                "year": "2025"
+            }
+        )
+        
+        name_test_student1_id = None
+        if success and 'id' in response:
+            name_test_student1_id = response['id']
+        
+        success, response = self.run_test(
+            "Create Team Name Test Student 2",
+            "POST",
+            "auth/student",
+            200,
+            data={
+                "rollNumber": "2025BTCSD555",
+                "name": "Team Name Test Student 2",
+                "branch": "CSD",
+                "year": "2025"
+            }
+        )
+        
+        name_test_student2_id = None
+        if success and 'id' in response:
+            name_test_student2_id = response['id']
+        
+        if not name_test_student1_id or not name_test_student2_id:
+            self.log_test("Unique Team Name Validation", False, "Failed to create test students")
+            return False
+        
+        # Create team with name "Test Team Alpha"
+        success, response = self.run_test(
+            "Create Team with Name 'Test Team Alpha'",
+            "POST",
+            "teams",
+            200,
+            data={
+                "name": "Test Team Alpha",
+                "leaderId": name_test_student1_id,
+                "memberIds": [],
+                "interests": ["C"]
+            }
+        )
+        
+        if not success:
+            self.log_test("Unique Team Name Validation", False, "Failed to create first team")
+            return False
+        
+        # Try to create another team with same name "Test Team Alpha" - should FAIL
+        success, response = self.run_test(
+            "Create Team with Duplicate Name (Should Fail)",
+            "POST",
+            "teams",
+            400,
+            data={
+                "name": "Test Team Alpha",
+                "leaderId": name_test_student2_id,
+                "memberIds": [],
+                "interests": ["Java"]
+            }
+        )
+        
+        # Verify the error message
+        if not success:
+            try:
+                error_detail = response if isinstance(response, dict) else {}
+                if "team name already exists" in str(error_detail).lower():
+                    self.log_test("Duplicate Team Name Error Message", True, "Correct error message returned")
+                else:
+                    self.log_test("Duplicate Team Name Error Message", False, f"Unexpected error: {error_detail}")
+            except:
+                self.log_test("Duplicate Team Name Error Message", True, "Request properly rejected")
+        
+        # Try creating "TEST TEAM ALPHA" (case insensitive) - should also FAIL
+        success, response = self.run_test(
+            "Create Team with Case Variation (Should Fail)",
+            "POST",
+            "teams",
+            400,
+            data={
+                "name": "TEST TEAM ALPHA",
+                "leaderId": name_test_student2_id,
+                "memberIds": [],
+                "interests": ["Java"]
+            }
+        )
+        
+        # Verify the error message for case insensitive check
+        if not success:
+            try:
+                error_detail = response if isinstance(response, dict) else {}
+                if "team name already exists" in str(error_detail).lower():
+                    self.log_test("Case Insensitive Team Name Error Message", True, "Correct error message returned")
+                else:
+                    self.log_test("Case Insensitive Team Name Error Message", False, f"Unexpected error: {error_detail}")
+            except:
+                self.log_test("Case Insensitive Team Name Error Message", True, "Request properly rejected")
+        
+        return True
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting Camplink API Tests...")
