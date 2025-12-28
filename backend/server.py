@@ -179,6 +179,21 @@ async def create_team(input: TeamCreate):
     if not leader:
         raise HTTPException(status_code=404, detail="Leader not found")
     
+    # Check if team name already exists
+    existing_team = await db.teams.find_one({"name": {"$regex": f"^{input.name}$", "$options": "i"}}, {"_id": 0})
+    if existing_team:
+        raise HTTPException(status_code=400, detail="Team name already exists! Please choose a different name.")
+    
+    # Check if leader is already in a team
+    if leader.get("teams") and len(leader.get("teams", [])) > 0:
+        raise HTTPException(status_code=400, detail="You are already in a team. Cannot create another team.")
+    
+    # Check if any member is already in a team
+    for member_id in input.memberIds:
+        member = await db.students.find_one({"id": member_id}, {"_id": 0})
+        if member and member.get("teams") and len(member.get("teams", [])) > 0:
+            raise HTTPException(status_code=400, detail=f"Member {member.get('name', 'Unknown')} is already in a team.")
+    
     team = Team(
         id=str(uuid.uuid4()),
         name=input.name,
