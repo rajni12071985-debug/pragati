@@ -27,6 +27,7 @@ const LeaveApplication = ({ student }) => {
     if (student?.id) {
       fetchLeaves();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student]);
 
   const fetchLeaves = async () => {
