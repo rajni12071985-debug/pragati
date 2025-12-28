@@ -175,6 +175,20 @@ const Dashboard = ({ student, onLogout }) => {
               <p className="text-slate-400 text-sm">Event photos and memories</p>
             </button>
 
+            <button
+              data-testid="leave-application-card"
+              onClick={() => navigate('/leave-application')}
+              className="glass-card rounded-xl p-8 hover:-translate-y-1 hover:border-orange-500/30 transition-all duration-300 group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4 group-hover:bg-orange-500/20 transition-colors">
+                <FileText className="w-6 h-6 text-orange-400" />
+              </div>
+              <h3 className="text-xl font-bold font-outfit mb-2 text-slate-200 group-hover:text-orange-400 transition-colors">
+                Leave Application
+              </h3>
+              <p className="text-slate-400 text-sm">Apply for leave with documents</p>
+            </button>
+
             {currentStudent.isLeader && (
               <button
                 data-testid="team-requests-card"
