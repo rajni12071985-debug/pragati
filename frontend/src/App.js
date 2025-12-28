@@ -18,6 +18,7 @@ import Notifications from './pages/Notifications';
 import Svietbook from './pages/Svietbook';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import LeaveApplication from './pages/LeaveApplication';
 
 function App() {
   const [currentStudent, setCurrentStudent] = useState(null);
