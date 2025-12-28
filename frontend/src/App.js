@@ -171,6 +171,16 @@ function App() {
             }
           />
           <Route
+            path="/leave-application"
+            element={
+              currentStudent ? (
+                <LeaveApplication student={currentStudent} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
             path="/admin"
             element={
               isAdmin ? (
