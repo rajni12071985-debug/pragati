@@ -1,7 +1,7 @@
 {
-  "total_tests": 15,
-  "passed_tests": 14,
-  "success_rate": 93.33333333333333,
+  "total_tests": 17,
+  "passed_tests": 17,
+  "success_rate": 100.0,
   "results": [
     {
       "test": "Valid CSD Roll Number: 2025BTCSD123",
@@ -44,12 +44,22 @@
       "details": "Status: 400, Expected: 400"
     },
     {
-      "test": "Invalid CSD Roll Number: 2025BTCS123",
-      "status": "FAILED",
-      "details": "Status: 200, Expected: 400, Response: {'id': '7f382b95-b68f-4a33-9894-7cd770971d8b', 'name': 'Invalid CSD Student', 'branch': 'CSD', 'year': '2025', 'rollNumber': '2025BTCS123', 'interests': [], 'teams': [], 'isLeader': False, 'createdAt': '2025-12-28T05:53:30.521326+00:00'}"
+      "test": "Invalid CSD Roll Number: 2025BTXYZ123",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
     },
     {
       "test": "Invalid CSD Roll Number: 2025BTCSD",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Invalid CSD Roll Number: 2025BT123",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "Invalid CSD Roll Number: BTCSD123",
       "status": "PASSED",
       "details": "Status: 400, Expected: 400"
     },
@@ -76,7 +86,7 @@
     {
       "test": "CSD Students count is valid",
       "status": "PASSED",
-      "details": "CSD count: 5"
+      "details": "CSD count: 6"
     }
   ]
 }
