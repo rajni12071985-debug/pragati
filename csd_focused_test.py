@@ -92,8 +92,10 @@ class CSDFocusedTester:
             "2025BTCSD1234",  # Too many digits at end
             "25BTCSD123",     # Too few year digits
             "2025CSDBT123",   # Wrong format
-            "2025BTCS123",    # Wrong branch code
+            "2025BTXYZ123",   # Invalid branch code
             "2025BTCSD",      # Missing digits at end
+            "2025BT123",      # Missing branch code
+            "BTCSD123",       # Missing year
         ]
         
         for roll_number in invalid_roll_numbers:
