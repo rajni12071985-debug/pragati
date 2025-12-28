@@ -1,10 +1,25 @@
 {
-  "total_tests": 20,
-  "passed_tests": 20,
-  "success_rate": 100.0,
+  "total_tests": 22,
+  "passed_tests": 18,
+  "success_rate": 81.81818181818183,
   "results": [
     {
-      "test": "Student Login/Registration",
+      "test": "Student Login/Registration (CSE)",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "CSD Student Creation (Valid Roll Number)",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "CSD Student Creation (Invalid Roll Number)",
+      "status": "PASSED",
+      "details": "Status: 400, Expected: 400"
+    },
+    {
+      "test": "CSD Student Creation (Another Valid Roll Number)",
       "status": "PASSED",
       "details": "Status: 200, Expected: 200"
     },
@@ -35,13 +50,13 @@
     },
     {
       "test": "Get All Students",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
+      "status": "FAILED",
+      "details": "Status: 520, Expected: 200, Response: Internal Server Error"
     },
     {
       "test": "Get Students with Interest Filter",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
+      "status": "FAILED",
+      "details": "Status: 520, Expected: 200, Response: Internal Server Error"
     },
     {
       "test": "Create Team",
@@ -65,23 +80,8 @@
     },
     {
       "test": "Create Second Student",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
-    },
-    {
-      "test": "Create Join Request",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
-    },
-    {
-      "test": "Get Team Requests",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
-    },
-    {
-      "test": "Approve Join Request",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
+      "status": "FAILED",
+      "details": "Status: 422, Expected: 200, Response: {'detail': [{'type': 'missing', 'loc': ['body', 'rollNumber'], 'msg': 'Field required', 'input': {'name': 'Test Student 2', 'branch': 'AI', 'year': '2024'}, 'url': 'https://errors.pydantic.dev/2.12/v/missing'}]}"
     },
     {
       "test": "Admin Login (Correct Password)",
@@ -95,13 +95,23 @@
     },
     {
       "test": "Admin Get Students",
-      "status": "PASSED",
-      "details": "Status: 200, Expected: 200"
+      "status": "FAILED",
+      "details": "Status: 520, Expected: 200, Response: Internal Server Error"
     },
     {
       "test": "Admin Get Teams",
       "status": "PASSED",
       "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Get Stats",
+      "status": "PASSED",
+      "details": "Status: 200, Expected: 200"
+    },
+    {
+      "test": "Admin Stats includes CSD count",
+      "status": "PASSED",
+      "details": "CSD Students: 2"
     }
   ]
 }
