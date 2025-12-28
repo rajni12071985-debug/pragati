@@ -102,10 +102,10 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Camplink college internal app - Add sidebar navigation to Admin Portal and add CSD branch to student login and admin dashboard"
+user_problem_statement: "Camplink college internal app - Add Leave Application system, Team member restriction (single team only), Unique team name validation"
 
 backend:
-  - task: "CSD Branch Support in Roll Number Validation"
+  - task: "Leave Application System"
     implemented: true
     working: "NA"
     file: "/app/backend/server.py"
@@ -115,72 +115,85 @@ backend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added CSD to roll number regex pattern and stats endpoint"
+        comment: "Added Leave Application endpoints: POST /leave-applications, GET /leave-applications/student/{id}, GET /admin/leave-applications, POST /admin/leave-applications/action"
 
-  - task: "Admin Stats with CSD Count"
+  - task: "Team Member Single Team Restriction"
     implemented: true
     working: "NA"
     file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added csdStudents count to admin stats endpoint"
+        comment: "Added validation in create_team and create_join_request endpoints to prevent students from joining multiple teams"
+
+  - task: "Unique Team Name Validation"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added case-insensitive team name uniqueness check in create_team endpoint"
 
 frontend:
-  - task: "Admin Portal Vertical Sidebar Navigation"
+  - task: "Leave Application Page for Students"
     implemented: true
     working: "NA"
-    file: "/app/frontend/src/pages/AdminDashboard.js"
+    file: "/app/frontend/src/pages/LeaveApplication.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Replaced horizontal tabs with vertical sidebar navigation. Sidebar includes Overview, Students, Teams, Requests, Interests, Events, Competitions, SVIETBOOK options with counts"
+        comment: "Created LeaveApplication.js with form to submit leave (reason, dates, document URL) and view leave history with status"
 
-  - task: "CSD Branch in Student Login Dropdown"
+  - task: "Leave Application Card in Dashboard"
     implemented: true
     working: "NA"
-    file: "/app/frontend/src/pages/LoginPage.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: true
-    status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "Added CSD option to branch dropdown and updated roll number validation pattern"
-
-  - task: "CSD in Admin Dashboard Branch Distribution"
-    implemented: true
-    working: "NA"
-    file: "/app/frontend/src/pages/AdminDashboard.js"
+    file: "/app/frontend/src/pages/Dashboard.js"
     stuck_count: 0
     priority: "medium"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Added CSD branch distribution bar in Overview section"
+        comment: "Added Leave Application card in student dashboard to navigate to leave page"
+
+  - task: "Leave Applications Tab in Admin Portal"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/AdminDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added Leave Applications tab in admin sidebar with ability to view all leaves and approve/reject them"
 
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Admin Portal Vertical Sidebar Navigation"
-    - "CSD Branch in Student Login Dropdown"
-    - "CSD Branch Support in Roll Number Validation"
+    - "Leave Application System"
+    - "Team Member Single Team Restriction"
+    - "Unique Team Name Validation"
+    - "Leave Applications Tab in Admin Portal"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Implemented two features: 1) Admin Portal sidebar navigation - replaced horizontal tabs with vertical sidebar. 2) Added CSD branch support in student login, roll number validation, and admin dashboard. Please test: Admin login with AURORA password, sidebar navigation between tabs, student login with CSD branch roll number like 2025BTCSD123"
+    message: "Implemented 3 features: 1) Leave Application system - students can apply for leave with documents, admin can approve/reject. 2) Team member restriction - students can only join ONE team. 3) Unique team name validation - duplicate names not allowed. Please test: Create leave application, try joining multiple teams (should fail), try creating team with existing name (should fail). Admin login: AURORA"
