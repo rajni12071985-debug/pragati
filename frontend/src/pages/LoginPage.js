@@ -26,9 +26,9 @@ const LoginPage = ({ onLogin }) => {
       return;
     }
 
-    const rollPattern = /^\d{4}BT(CS|AI)\d{3}$/;
+    const rollPattern = /^\d{4}BT(CS|AI|CSD)\d{3}$/;
     if (!rollPattern.test(rollNumber)) {
-      toast.error('Invalid roll number format. Use: YYYYBTCS/AI### (e.g., 2025BTCS282)');
+      toast.error('Invalid roll number format. Use: YYYYBT(CS/AI/CSD)### (e.g., 2025BTCS282)');
       return;
     }
 
@@ -114,6 +114,7 @@ const LoginPage = ({ onLogin }) => {
                 <SelectContent className="bg-slate-900 border-white/10">
                   <SelectItem value="CSE" data-testid="branch-cse">CSE</SelectItem>
                   <SelectItem value="AI" data-testid="branch-ai">AI</SelectItem>
+                  <SelectItem value="CSD" data-testid="branch-csd">CSD</SelectItem>
                 </SelectContent>
               </Select>
             </div>

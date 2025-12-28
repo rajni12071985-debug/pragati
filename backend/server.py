@@ -95,7 +95,7 @@ async def student_login(input: StudentCreate):
     import re
     roll_pattern = r'^\d{4}BT(CS|AI|CSD)\d{3}$'
     if not re.match(roll_pattern, input.rollNumber):
-        raise HTTPException(status_code=400, detail="Invalid roll number format. Use: YYYYBT(CS|AI|CSD)###")
+        raise HTTPException(status_code=400, detail="Invalid roll number format. Use: YYYYBT(CS/AI/CSD)###")
     
     existing = await db.students.find_one({"rollNumber": input.rollNumber}, {"_id": 0})
     
