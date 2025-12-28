@@ -358,11 +358,14 @@ const AdminDashboard = ({ onLogout }) => {
   const approvedRequests = requests.filter(r => r.status === 'approved');
   const rejectedRequests = requests.filter(r => r.status === 'rejected');
 
+  const pendingLeaves = leaveApplications.filter(l => l.status === 'pending');
+
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'students', label: 'Students', icon: Users, count: students.length },
     { id: 'teams', label: 'Teams', icon: TrendingUp, count: teams.length },
     { id: 'requests', label: 'Requests', icon: UserCheck, count: pendingRequests.length },
+    { id: 'leaves', label: 'Leave Applications', icon: ClipboardList, count: pendingLeaves.length },
     { id: 'interests', label: 'Interests', icon: Heart, count: interests.length },
     { id: 'events', label: 'Events', icon: Calendar, count: events.length },
     { id: 'competitions', label: 'Competitions', icon: Trophy, count: competitions.length },
