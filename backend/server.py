@@ -799,6 +799,95 @@ async def like_photo(photo_id: str, student_id: str):
         )
         return {"message": "Photo liked", "liked": True}
 
+# Leave Application Endpoints
+@api_router.post("/leave-applications", response_model=LeaveApplication)
+async def create_leave_application(input: LeaveApplicationCreate):
+    student = await db.students.find_one({"id": input.studentId}, {"_id": 0})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    
+    leave = LeaveApplication(
+        id=str(uuid.uuid4()),
+        studentId=input.studentId,
+        studentName=student.get("name", "Unknown"),
+        studentRollNumber=student.get("rollNumber", "N/A"),
+        studentBranch=student.get("branch", "N/A"),
+        reason=input.reason,
+        fromDate=input.fromDate,
+        toDate=input.toDate,
+        documentUrl=input.documentUrl,
+        status="pending",
+        createdAt=datetime.now(timezone.utc).isoformat()
+    )
+    
+    await db.leaveApplications.insert_one(leave.model_dump())
+    return leave
+
+@api_router.get("/leave-applications/student/{student_id}", response_model=List[LeaveApplication])
+async def get_student_leaves(student_id: str):
+    leaves = await db.leaveApplications.find(
+        {"studentId": student_id},
+        {"_id": 0}
+    ).sort("createdAt", -1).to_list(100)
+    return [LeaveApplication(**l) for l in leaves]
+
+@api_router.get("/admin/leave-applications", response_model=List[LeaveApplication])
+async def get_all_leaves():
+    leaves = await db.leaveApplications.find({}, {"_id": 0}).sort("createdAt", -1).to_list(1000)
+    return [LeaveApplication(**l) for l in leaves]
+
+@api_router.post("/admin/leave-applications/action")
+async def handle_leave_action(input: LeaveAction):
+    leave = await db.leaveApplications.find_one({"id": input.leaveId}, {"_id": 0})
+    if not leave:
+        raise HTTPException(status_code=404, detail="Leave application not found")
+    
+    if input.action == "approve":
+        await db.leaveApplications.update_one(
+            {"id": input.leaveId},
+            {"$set": {"status": "approved", "adminComment": input.comment}}
+        )
+        # Send notification to student
+        notification = Notification(
+            id=str(uuid.uuid4()),
+            studentId=leave["studentId"],
+            title="Leave Application Approved ✅",
+            message=f"Your leave application from {leave['fromDate']} to {leave['toDate']} has been approved.",
+            type="leave",
+            relatedId=input.leaveId,
+            isRead=False,
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+        await db.notifications.insert_one(notification.model_dump())
+        return {"message": "Leave approved successfully"}
+    elif input.action == "reject":
+        await db.leaveApplications.update_one(
+            {"id": input.leaveId},
+            {"$set": {"status": "rejected", "adminComment": input.comment}}
+        )
+        # Send notification to student
+        notification = Notification(
+            id=str(uuid.uuid4()),
+            studentId=leave["studentId"],
+            title="Leave Application Rejected ❌",
+            message=f"Your leave application from {leave['fromDate']} to {leave['toDate']} has been rejected.",
+            type="leave",
+            relatedId=input.leaveId,
+            isRead=False,
+            createdAt=datetime.now(timezone.utc).isoformat()
+        )
+        await db.notifications.insert_one(notification.model_dump())
+        return {"message": "Leave rejected successfully"}
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action")
+
+@api_router.delete("/leave-applications/{leave_id}")
+async def delete_leave(leave_id: str):
+    result = await db.leaveApplications.delete_one({"id": leave_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Leave application not found")
+    return {"message": "Leave application deleted successfully"}
+
 app.include_router(api_router)
 
 app.add_middleware(
