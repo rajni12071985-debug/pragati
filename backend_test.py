@@ -413,6 +413,7 @@ class CamplinkAPITester:
         
         # Run test suites
         self.test_student_auth()
+        self.test_csd_branch_support()
         self.test_interests_management()
         self.test_students_operations()
         self.test_teams_operations()
